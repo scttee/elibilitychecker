@@ -8,10 +8,15 @@
     {
       "label": "City of Sydney consultation page",
       "url": "https://www.cityofsydney.nsw.gov.au/consultations"
+    },
+    {
+      "label": "Draft outdoor dining guidelines (exhibition PDF)",
+      "url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/projects/policy-planning-changes/your-say-proposed-changes-outdoor-dining/attachment-c---draft-outdoor-dining-guidelines---for-exhibition_accessible_bb.pdf?download=true"
     }
   ],
   "pathways": {
     "new_application": "New outdoor dining application",
+    "road_reallocation": "Road reallocation",
     "contact_council_existing": "Existing approval - contact council team"
   },
   "defaultChecklist": [
@@ -75,6 +80,32 @@
       "nextSteps": [
         "Contact council to confirm whether you need a renewal or amendment",
         "Follow council advice before preparing extra documents"
+      ]
+    },
+    {
+      "id": "road_reallocation_new",
+      "priority": 80,
+      "when": {
+        "hasExistingApproval": ["no", "not_sure"],
+        "locationType": ["road", "both"],
+        "inCityLga": ["yes", "not_sure"]
+      },
+      "pathway": "road_reallocation",
+      "checklist": [
+        "Concept plan showing parking lane occupation and dimensions",
+        "Pedestrian and traffic safety notes",
+        "Waste collection and service access notes"
+      ],
+      "notNeededYet": [
+        "Final engineering certification before initial council advice"
+      ],
+      "warnings": [
+        "Road reallocation usually requires additional technical review and consultation."
+      ],
+      "nextSteps": [
+        "Book early pre-lodgement advice with council",
+        "Prepare a road-use concept package",
+        "Expect extra assessment and public consultation steps"
       ]
     },
     {

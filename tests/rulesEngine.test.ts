@@ -17,8 +17,14 @@ describe('evaluateEligibility', () => {
     expect(result.matchedRuleId).toBe('new_application_default')
   })
 
+  it('returns road reallocation for road-based new applications', () => {
+    const result = evaluateEligibility({ ...baseResponses, locationType: 'road' })
+    expect(result.pathwayKey).toBe('road_reallocation')
+    expect(result.matchedRuleId).toBe('road_reallocation_new')
+  })
+
   it('prioritises outside LGA warning', () => {
-    const result = evaluateEligibility({ ...baseResponses, inCityLga: 'no' })
+    const result = evaluateEligibility({ ...baseResponses, inCityLga: 'no', locationType: 'road' })
     expect(result.matchedRuleId).toBe('outside_lga')
   })
 

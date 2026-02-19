@@ -197,6 +197,29 @@ const Home = () => {
 
           <ResultSummary result={result} sourceSummary={rulesConfig.sourceSummary} sourceLinks={rulesConfig.sourceLinks} />
 
+          {responses.needClearanceHelp === 'yes' ? (
+            <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
+              <h2 className="font-semibold text-civic-ink">Pedestrian clearance help</h2>
+              <p className="mt-2 text-slate-700">
+                For detailed pedestrian clearance guidance, review the City of Sydney outdoor dining page and draft
+                outdoor dining guidelines, then call the City of Sydney duty planner line.
+              </p>
+              <ul className="mt-2 list-disc pl-5 text-slate-700">
+                <li>
+                  <a className="text-civic-accent underline" href="https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining" target="_blank" rel="noreferrer">
+                    Outdoor dining information
+                  </a>
+                </li>
+                <li>
+                  <a className="text-civic-accent underline" href="https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/projects/policy-planning-changes/your-say-proposed-changes-outdoor-dining/attachment-c---draft-outdoor-dining-guidelines---for-exhibition_accessible_bb.pdf?download=true" target="_blank" rel="noreferrer">
+                    Draft outdoor dining guidelines (PDF)
+                  </a>
+                </li>
+                <li>Call City of Sydney on <strong>(02) 9265 9333</strong> and ask for the duty planner.</li>
+              </ul>
+            </section>
+          ) : null}
+
           <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
             <h2 className="font-semibold text-civic-ink">Not sure?</h2>
             <p className="mt-2 text-slate-700">

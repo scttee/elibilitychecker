@@ -80,6 +80,8 @@ Recommended sources:
 2. City of Sydney outdoor dining guidance: <https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining>
 3. NSW Planning Portal spatial viewer: <https://www.planningportal.nsw.gov.au/spatialviewer>
 
+Note: in this execution environment, direct fetch of external sources may fail due network policy (403 CONNECT tunnel).
+
 ## How the checker works now
 
 1. User searches for an exact street/business record and selects a matched address result.
@@ -121,3 +123,16 @@ You can edit:
 ## Notes
 
 This prototype is guidance only and does not provide approvals.
+
+
+## Recent improvements
+
+- Road reallocation pathway now triggers when users select on-street or both on-street + footpath locations.
+- If users request pedestrian-clearance help, the app now links to City of Sydney guidance pages and shows the duty planner contact number.
+
+## Additional guidance to consider adding
+
+- Frontage width and minimum continuous pedestrian corridor checks by street segment.
+- Nearby bus stop, crossing, loading zone, and fire egress constraints.
+- Neighbour notification/consultation timing hints for road reallocation cases.
+- Clear split between likely baseline controls and site-specific assessment items.
