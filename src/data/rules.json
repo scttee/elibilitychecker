@@ -1,0 +1,142 @@
+{
+  "sourceSummary": "Prototype logic based on City of Sydney outdoor dining public guidance and conservative assumptions. Edit this text as policy references are updated.",
+  "sourceLinks": [
+    {
+      "label": "City of Sydney outdoor dining information",
+      "url": "https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining"
+    },
+    {
+      "label": "City of Sydney consultation page",
+      "url": "https://www.cityofsydney.nsw.gov.au/consultations"
+    },
+    {
+      "label": "Draft outdoor dining guidelines (exhibition PDF)",
+      "url": "https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/projects/policy-planning-changes/your-say-proposed-changes-outdoor-dining/attachment-c---draft-outdoor-dining-guidelines---for-exhibition_accessible_bb.pdf?download=true"
+    }
+  ],
+  "pathways": {
+    "new_application": "New outdoor dining application",
+    "road_reallocation": "Road reallocation",
+    "contact_council_existing": "Existing approval - contact council team"
+  },
+  "defaultChecklist": [
+    "Business details and contact person",
+    "Site sketch with furniture layout and dimensions",
+    "Proposed days and hours of operation"
+  ],
+  "defaultNotNeededYet": [
+    "Detailed engineering drawings",
+    "Ordering custom furniture before council feedback"
+  ],
+  "defaultWarnings": [
+    "Prototype guidance only. Requirements vary by location and circumstances. Council will confirm during assessment.",
+    "If your situation is complex, contact council before spending money on drawings."
+  ],
+  "defaultNextSteps": [
+    "Confirm your location details",
+    "Prepare the core checklist items",
+    "Review council guidance and lodge a new application"
+  ],
+  "rules": [
+    {
+      "id": "outside_lga",
+      "priority": 100,
+      "when": {
+        "inCityLga": "no"
+      },
+      "pathway": "new_application",
+      "checklist": [
+        "Confirm the correct local council for this address"
+      ],
+      "notNeededYet": [
+        "Preparing a City of Sydney application pack"
+      ],
+      "warnings": [
+        "The address appears outside City of Sydney LGA. This checker is for City of Sydney locations only."
+      ],
+      "nextSteps": [
+        "Check your council area first",
+        "Use that council's outdoor dining process"
+      ]
+    },
+    {
+      "id": "existing_approval_referral",
+      "priority": 90,
+      "when": {
+        "hasExistingApproval": "yes"
+      },
+      "pathway": "contact_council_existing",
+      "checklist": [
+        "Current permit number",
+        "Summary of what you want to change",
+        "Any existing approved plans"
+      ],
+      "notNeededYet": [
+        "Starting a fresh new-application package"
+      ],
+      "warnings": [
+        "This prototype is focused on new applications. Existing approvals are assessed case-by-case."
+      ],
+      "nextSteps": [
+        "Contact council to confirm whether you need a renewal or amendment",
+        "Follow council advice before preparing extra documents"
+      ]
+    },
+    {
+      "id": "road_reallocation_new",
+      "priority": 80,
+      "when": {
+        "hasExistingApproval": ["no", "not_sure"],
+        "locationType": ["road", "both"],
+        "inCityLga": ["yes", "not_sure"]
+      },
+      "pathway": "road_reallocation",
+      "checklist": [
+        "Concept plan showing parking lane occupation and dimensions",
+        "Pedestrian and traffic safety notes",
+        "Waste collection and service access notes"
+      ],
+      "notNeededYet": [
+        "Final engineering certification before initial council advice"
+      ],
+      "warnings": [
+        "Road reallocation usually requires additional technical review and consultation."
+      ],
+      "nextSteps": [
+        "Book early pre-lodgement advice with council",
+        "Prepare a road-use concept package",
+        "Expect extra assessment and public consultation steps"
+      ]
+    },
+    {
+      "id": "new_application_default",
+      "priority": 10,
+      "when": {
+        "hasExistingApproval": [
+          "no",
+          "not_sure"
+        ],
+        "inCityLga": [
+          "yes",
+          "not_sure"
+        ]
+      },
+      "pathway": "new_application",
+      "checklist": [
+        "Simple management notes for cleaning and access",
+        "Any liquor licence details if alcohol is proposed"
+      ],
+      "notNeededYet": [
+        "Paying for full consultant package before initial feedback"
+      ],
+      "warnings": [
+        "Locations in The Rocks, Darling Harbour, or Barangaroo may require extra authority approvals."
+      ],
+      "nextSteps": [
+        "Review your likely hours and area range below",
+        "Prepare only core documents first",
+        "Lodge a new application with council"
+      ]
+    }
+  ]
+}
