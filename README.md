@@ -6,6 +6,7 @@ A single-page React prototype that helps City of Sydney businesses understand th
 
 - Mobile-first guided question flow (progressive disclosure)
 - Conservative rules engine driven by editable JSON
+- Business/address lookup prototype that can pre-fill location context answers
 - Result summary with:
   - likely pathway
   - usual checklist
@@ -15,7 +16,7 @@ A single-page React prototype that helps City of Sydney businesses understand th
 - Persistent trust language and prototype disclaimer
 - "What we based this on" expandable source section
 - "Save / Print summary" clean print view
-- Basic Vitest unit tests for the rules engine
+- Basic Vitest unit tests for rules engine and address lookup
 
 ## Setup
 
@@ -74,6 +75,42 @@ npm run build
 npm run preview
 ```
 
+## Cloudflare Pages deployment
+
+This app can be hosted on Cloudflare Pages as a static Vite site:
+
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Node version: `20+`
+
+## Datasets you can plug in
+
+Current prototype lookup uses local sample data in:
+
+- `src/data/businessAddresses.json`
+
+Recommended production datasets/services:
+
+1. City of Sydney Open Data portal: <https://data.cityofsydney.nsw.gov.au/>
+2. NSW Planning Portal spatial viewer datasets: <https://www.planningportal.nsw.gov.au/spatialviewer>
+3. data.gov.au catalogue (address/business references): <https://data.gov.au/>
+4. ABR ABN Lookup web services (business identity fields): <https://abr.business.gov.au/Help/WebServices>
+
+## How address pre-fill works
+
+- The lookup component searches business name/street strings.
+- On select, it pre-fills likely:
+  - `inCityLga`
+  - `inSpecialPrecinct`
+  - `locationType` (if not already answered)
+- Users can still manually adjust answers.
+
+Main files:
+
+- `src/components/AddressLookup.tsx`
+- `src/lib/addressLookup.ts`
+- `src/data/businessAddresses.json`
+
 ## Run tests
 
 ```bash
@@ -104,10 +141,10 @@ Each rule has:
 ## How to adapt for real Council rules later
 
 1. Replace prototype copy in `sourceSummary` with exact policy references.
-2. Add rule conditions for precinct-level controls and alcohol/licensing dependencies.
-3. Add validation constraints (for example, minimum pedestrian clearance thresholds).
-4. Add CMS or admin editing workflow for policy updates.
-5. Add analytics to identify where applicants get stuck.
+2. Replace local lookup dataset with a City of Sydney dataset/API adapter.
+3. Add rule conditions for precinct-level controls and alcohol/licensing dependencies.
+4. Add validation constraints (for example, minimum pedestrian clearance thresholds).
+5. Add an admin workflow for policy updates and dataset refresh.
 
 ## Notes
 

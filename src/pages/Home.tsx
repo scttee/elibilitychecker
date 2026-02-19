@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import QuestionCard from '../components/QuestionCard'
+import AddressLookup from '../components/AddressLookup'
 import ResultSummary from '../components/ResultSummary'
 import { evaluateEligibility, rulesConfig, type Responses } from '../lib/rulesEngine'
+import type { BusinessAddressRecord } from '../lib/addressLookup'
 
 const initialResponses: Partial<Responses> = {}
 
@@ -89,6 +91,8 @@ const questions = [
 const Home = () => {
   const [responses, setResponses] = useState<Partial<Responses>>(initialResponses)
 
+  const [prefillRecord, setPrefillRecord] = useState<BusinessAddressRecord | null>(null)
+
   const answeredCount = Object.keys(responses).length
   const canEvaluate = answeredCount === questions.length
 
@@ -99,6 +103,16 @@ const Home = () => {
 
   const handleAnswer = (key: keyof Responses, value: string) => {
     setResponses((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const applyAddressPrefill = (record: BusinessAddressRecord) => {
+    setPrefillRecord(record)
+    setResponses((prev) => ({
+      ...prev,
+      inCityLga: record.inCityLga ? 'yes' : 'no',
+      inSpecialPrecinct: record.specialPrecinct ? 'yes' : 'no',
+      locationType: prev.locationType ?? record.locationTypeHint
+    }))
   }
 
   return (
@@ -114,6 +128,18 @@ const Home = () => {
           what to prepare now, and what can wait.
         </p>
       </header>
+
+      <AddressLookup onSelect={applyAddressPrefill} />
+
+      {prefillRecord ? (
+        <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
+          <h2 className="font-semibold text-civic-ink">Pre-filled location context</h2>
+          <p className="mt-1">
+            Based on <strong>{prefillRecord.businessName}</strong>, we pre-filled City of Sydney LGA and special
+            precinct answers. Please review and adjust if needed.
+          </p>
+        </section>
+      ) : null}
 
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between text-sm text-slate-700">
@@ -153,7 +179,10 @@ const Home = () => {
             </button>
             <button
               type="button"
-              onClick={() => setResponses(initialResponses)}
+              onClick={() => {
+                setResponses(initialResponses)
+                setPrefillRecord(null)
+              }}
               className="rounded-lg border border-civic-border px-4 py-2 text-sm font-medium text-civic-ink"
             >
               Start again

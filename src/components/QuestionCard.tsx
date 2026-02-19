@@ -12,7 +12,7 @@ interface QuestionCardProps {
   hint?: string
   value?: string
   onChange: (value: string) => void
-  options: Option[]
+  options: readonly Option[]
   isVisible: boolean
   rightSlot?: ReactNode
 }
