@@ -1,12 +1,26 @@
-import citySuburbsData from '../data/citySuburbs.json'
+import cityLocationsData from '../data/cityLocations.json'
+import businessAddressesData from '../data/businessAddresses.json'
 import footpathGuidanceData from '../data/footpathGuidance.json'
 
 export type FootpathZone = 'local' | 'high_street' | 'city_centre' | 'special'
 
-interface CitySuburbRecord {
+interface CityLocationRecord {
+  id: string
+  streetAddress: string
   suburb: string
   postcode: string
+  inCityLga: boolean
+  specialPrecinct: 'The Rocks' | 'Darling Harbour' | 'Barangaroo' | null
   footpathZone: FootpathZone
+}
+
+interface BusinessAddressRecord {
+  id: string
+  businessName: string
+  streetAddress: string
+  suburb: string
+  postcode: string
+  inCityLga: boolean
   specialPrecinct: 'The Rocks' | 'Darling Harbour' | 'Barangaroo' | null
 }
 
@@ -18,6 +32,8 @@ export interface StreetAddressRecord {
   inCityLga: boolean
   specialPrecinct: 'The Rocks' | 'Darling Harbour' | 'Barangaroo' | null
   footpathZone: FootpathZone
+  sourceType: 'street_register' | 'business_register'
+  businessName?: string
 }
 
 interface ZoneGuidance {
@@ -39,42 +55,41 @@ export interface EntitlementEstimate {
   clearanceRule: string
 }
 
-const suburbs = citySuburbsData as CitySuburbRecord[]
+const streetRecords = cityLocationsData as CityLocationRecord[]
+const businessRecords = businessAddressesData as BusinessAddressRecord[]
 const guidanceConfig = footpathGuidanceData as FootpathGuidanceConfig
 
-const normalise = (value: string) => value.trim().toLowerCase()
+const zoneBySuburb = new Map(streetRecords.map((record) => [record.suburb, record.footpathZone]))
 
-const splitAddressQuery = (query: string) => {
-  const parts = query.split(',').map((part) => part.trim()).filter(Boolean)
-  if (parts.length >= 2) {
-    return { streetPart: parts[0], suburbPart: parts.slice(1).join(' ') }
-  }
-  return { streetPart: '', suburbPart: query.trim() }
-}
+const toStreetRecord = (record: CityLocationRecord): StreetAddressRecord => ({
+  ...record,
+  sourceType: 'street_register'
+})
 
-const toRecord = (suburbRecord: CitySuburbRecord, streetPart: string): StreetAddressRecord => {
-  const chosenStreet = streetPart.trim() || 'Any street'
-  return {
-    id: `${chosenStreet}-${suburbRecord.suburb}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    streetAddress: chosenStreet,
-    suburb: suburbRecord.suburb,
-    postcode: suburbRecord.postcode,
-    inCityLga: true,
-    specialPrecinct: suburbRecord.specialPrecinct,
-    footpathZone: suburbRecord.footpathZone
-  }
-}
+const toBusinessRecord = (record: BusinessAddressRecord): StreetAddressRecord => ({
+  id: `biz-${record.id}`,
+  streetAddress: record.streetAddress,
+  suburb: record.suburb,
+  postcode: record.postcode,
+  inCityLga: record.inCityLga,
+  specialPrecinct: record.specialPrecinct,
+  footpathZone: zoneBySuburb.get(record.suburb) ?? 'local',
+  sourceType: 'business_register',
+  businessName: record.businessName
+})
 
-export const searchStreetAddresses = (query: string, limit = 8): StreetAddressRecord[] => {
-  const cleanQuery = normalise(query)
+const registry = [...streetRecords.map(toStreetRecord), ...businessRecords.map(toBusinessRecord)]
+
+export const searchStreetAddresses = (query: string, limit = 10): StreetAddressRecord[] => {
+  const cleanQuery = query.trim().toLowerCase()
   if (!cleanQuery) return []
 
-  const { streetPart, suburbPart } = splitAddressQuery(query)
-  const cleanSuburbPart = normalise(suburbPart)
-
-  const suburbMatches = suburbs.filter((record) => normalise(record.suburb).includes(cleanSuburbPart))
-
-  return suburbMatches.slice(0, limit).map((record) => toRecord(record, streetPart))
+  return registry
+    .filter((record) => {
+      const haystack = `${record.businessName ?? ''} ${record.streetAddress} ${record.suburb} ${record.postcode}`.toLowerCase()
+      return haystack.includes(cleanQuery)
+    })
+    .slice(0, limit)
 }
 
 export const estimateEntitlement = (record: StreetAddressRecord): EntitlementEstimate => {
@@ -89,8 +104,12 @@ export const estimateEntitlement = (record: StreetAddressRecord): EntitlementEst
 
 export const getFootpathDataSourceNote = () => guidanceConfig.sourceNote
 
-export const getCityLgaCoverage = () => ({
-  suburbCount: suburbs.length,
-  suburbs: suburbs.map((record) => record.suburb).sort((a, b) => a.localeCompare(b)),
-  coverageNote: 'Lookup covers any street provided the suburb is within City of Sydney LGA.'
-})
+export const getCityLgaCoverage = () => {
+  const suburbs = [...new Set(streetRecords.filter((r) => r.inCityLga).map((record) => record.suburb))].sort((a, b) => a.localeCompare(b))
+  return {
+    streetRecordCount: streetRecords.length,
+    businessRecordCount: businessRecords.length,
+    suburbs,
+    coverageNote: 'Specific address certainty is based on matched records in the local street/business registers.'
+  }
+}

@@ -63,7 +63,8 @@ npm run preview
 
 ### Included now
 
-- `src/data/citySuburbs.json`: City of Sydney suburb list used to validate LGA coverage for any user-entered street
+- `src/data/cityLocations.json`: specific street register records used for address certainty
+- `src/data/businessAddresses.json`: specific business address records used for business-level matching
 - `src/data/footpathGuidance.json`: conservative zone guidance used for likely hours and likely max area outputs
 
 ### Footpath/location source note
@@ -71,7 +72,7 @@ npm run preview
 This environment could not directly scrape external datasets (network requests returned `403 CONNECT tunnel failed`).
 So this prototype now includes a locally maintained baseline dataset and explicit source note text in-app.
 
-When you run this in your own environment with internet access, replace `citySuburbs.json` and `footpathGuidance.json` with refreshed extracts from official sources.
+When you run this in your own environment with internet access, replace `cityLocations.json and businessAddresses.json` and `footpathGuidance.json` with refreshed extracts from official sources.
 
 Recommended sources:
 
@@ -81,7 +82,7 @@ Recommended sources:
 
 ## How the checker works now
 
-1. User types a street and suburb (for example, `123 Example St, Haymarket`) and selects a matched suburb result.
+1. User searches for an exact street/business record and selects a matched address result.
 2. App pre-fills location context (`inCityLga`, `inSpecialPrecinct`).
 3. User answers core new-application questions.
 4. App outputs:
@@ -111,7 +112,7 @@ You can edit:
 
 ## How to adapt for real Council rules later
 
-1. Replace prototype `citySuburbs.json` with authoritative suburb boundary/address index data.
+1. Replace prototype `cityLocations.json` and `businessAddresses.json` with authoritative full address and business extracts.
 2. Replace `footpathGuidance.json` with validated, location-level controls.
 3. Add geo-based checks (street width, frontage constraints, pedestrian flow hotspots).
 4. Add council-maintained versioning for policy text and dataset refresh dates.

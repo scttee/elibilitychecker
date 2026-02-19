@@ -17,7 +17,6 @@
   "defaultChecklist": [
     "Business details and contact person",
     "Site sketch with furniture layout and dimensions",
-    "Photos of frontage, kerb and pedestrian path",
     "Proposed days and hours of operation"
   ],
   "defaultNotNeededYet": [
@@ -82,8 +81,14 @@
       "id": "new_application_default",
       "priority": 10,
       "when": {
-        "hasExistingApproval": ["no", "not_sure"],
-        "inCityLga": ["yes", "not_sure"]
+        "hasExistingApproval": [
+          "no",
+          "not_sure"
+        ],
+        "inCityLga": [
+          "yes",
+          "not_sure"
+        ]
       },
       "pathway": "new_application",
       "checklist": [

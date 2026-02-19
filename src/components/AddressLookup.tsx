@@ -14,12 +14,12 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
     <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Type any street plus a City of Sydney suburb (for example, "123 George St, Haymarket"). The checker then pre-fills
-        location context and gives a likely footpath entitlement range.
+        Search exact records from the local City of Sydney street and business registers. Select a matched address to get
+        location certainty and likely entitlement guidance.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">
-        Street address or suburb
+        Business name, street, or suburb
       </label>
       <input
         id="address-lookup"
@@ -27,7 +27,7 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         className="mt-1 w-full rounded-lg border border-civic-border px-3 py-2 text-sm"
-        placeholder="e.g. 123 George St, Haymarket"
+        placeholder="e.g. 45 George Street or Harbour Lane Cafe"
       />
 
       {results.length > 0 ? (
@@ -44,9 +44,9 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
                 }}
               >
                 <p className="text-sm font-semibold text-civic-ink">
-                  {record.streetAddress}, {record.suburb}
+                  {record.businessName ? `${record.businessName} — ` : ''}{record.streetAddress}, {record.suburb}
                 </p>
-                <p className="text-xs text-slate-600">{record.postcode}</p>
+                <p className="text-xs text-slate-600">{record.postcode} · {record.sourceType === 'business_register' ? 'Business register' : 'Street register'}</p>
               </button>
             </li>
           ))}
