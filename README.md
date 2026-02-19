@@ -1,12 +1,17 @@
 # Outdoor Dining Eligibility Checker (prototype)
 
-A single-page React prototype that helps City of Sydney businesses understand their **likely** outdoor dining pathway and prepare the right level of information early.
+A single-page React prototype that helps City of Sydney businesses understand their **likely** new outdoor dining pathway, likely operating envelope, and what to prepare for a new application.
 
 ## Features
 
-- Mobile-first guided question flow (progressive disclosure)
+- Mobile-first guided question flow with progressive disclosure
+- Street address lookup oriented to City of Sydney locations
+- Prototype footpath entitlement estimate for each selected location:
+  - likely operating hours range
+  - likely maximum outdoor area (sqm)
+  - pedestrian clearance reminder
 - Conservative rules engine driven by editable JSON
-- Business/address lookup prototype that can pre-fill location context answers
+- Existing permit pathways are de-emphasised and referred to council
 - Result summary with:
   - likely pathway
   - usual checklist
@@ -16,7 +21,7 @@ A single-page React prototype that helps City of Sydney businesses understand th
 - Persistent trust language and prototype disclaimer
 - "What we based this on" expandable source section
 - "Save / Print summary" clean print view
-- Basic Vitest unit tests for rules engine and address lookup
+- Basic Vitest unit tests for rules engine and location/entitlement logic
 
 ## Setup
 
@@ -41,33 +46,6 @@ npm run dev
 
 Open the local URL shown by Vite (usually `http://localhost:5173`).
 
-## If you can't run it locally (quick fixes)
-
-If `npm install` fails, run these checks in order:
-
-1. Force npm registry to public npm:
-
-```bash
-npm config set registry https://registry.npmjs.org/
-npm config delete proxy || true
-npm config delete https-proxy || true
-npm config list
-```
-
-2. Clean install state:
-
-```bash
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
-```
-
-3. If your workplace network blocks npm, try from a different network or ask IT to allow `registry.npmjs.org`.
-
-### Common error: `vite: not found`
-
-This means dependencies did not install correctly. Re-run `npm install` after fixing registry/proxy settings.
-
 ## Build for production
 
 ```bash
@@ -77,39 +55,41 @@ npm run preview
 
 ## Cloudflare Pages deployment
 
-This app can be hosted on Cloudflare Pages as a static Vite site:
-
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Node version: `20+`
 
-## Datasets you can plug in
+## Datasets and location coverage
 
-Current prototype lookup uses local sample data in:
+### Included now
 
-- `src/data/businessAddresses.json`
+- `src/data/cityLocations.json`: representative street records across City of Sydney suburbs for lookup and LGA detection
+- `src/data/footpathGuidance.json`: conservative zone guidance used for likely hours and likely max area outputs
 
-Recommended production datasets/services:
+### Footpath/location source note
+
+This environment could not directly scrape external datasets (network requests returned `403 CONNECT tunnel failed`).
+So this prototype now includes a locally maintained baseline dataset and explicit source note text in-app.
+
+When you run this in your own environment with internet access, replace `cityLocations.json` and `footpathGuidance.json` with refreshed extracts from official sources.
+
+Recommended sources:
 
 1. City of Sydney Open Data portal: <https://data.cityofsydney.nsw.gov.au/>
-2. NSW Planning Portal spatial viewer datasets: <https://www.planningportal.nsw.gov.au/spatialviewer>
-3. data.gov.au catalogue (address/business references): <https://data.gov.au/>
-4. ABR ABN Lookup web services (business identity fields): <https://abr.business.gov.au/Help/WebServices>
+2. City of Sydney outdoor dining guidance: <https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining>
+3. NSW Planning Portal spatial viewer: <https://www.planningportal.nsw.gov.au/spatialviewer>
 
-## How address pre-fill works
+## How the checker works now
 
-- The lookup component searches business name/street strings.
-- On select, it pre-fills likely:
-  - `inCityLga`
-  - `inSpecialPrecinct`
-  - `locationType` (if not already answered)
-- Users can still manually adjust answers.
+1. User types and selects a City of Sydney street/suburb location.
+2. App pre-fills location context (`inCityLga`, `inSpecialPrecinct`).
+3. User answers core new-application questions.
+4. App outputs:
+   - likely pathway
+   - likely operating hours and likely max outdoor area
+   - practical checklist and next steps for a new application
 
-Main files:
-
-- `src/components/AddressLookup.tsx`
-- `src/lib/addressLookup.ts`
-- `src/data/businessAddresses.json`
+Questions about permit amendments are shown only if user says they already have approval.
 
 ## Run tests
 
@@ -125,26 +105,17 @@ Rules are stored in:
 
 You can edit:
 
-- `pathways`: labels shown to users
+- `pathways`
 - `defaultChecklist`, `defaultNotNeededYet`, `defaultWarnings`, `defaultNextSteps`
-- `rules[]`: matching conditions and rule-specific outputs
-
-### Rule format
-
-Each rule has:
-
-- `priority`: higher number wins first
-- `when`: answer conditions to match
-- `pathway`: one of the keys under `pathways`
-- `checklist`, `notNeededYet`, `warnings`, `nextSteps`
+- `rules[]` matching and outputs
 
 ## How to adapt for real Council rules later
 
-1. Replace prototype copy in `sourceSummary` with exact policy references.
-2. Replace local lookup dataset with a City of Sydney dataset/API adapter.
-3. Add rule conditions for precinct-level controls and alcohol/licensing dependencies.
-4. Add validation constraints (for example, minimum pedestrian clearance thresholds).
-5. Add an admin workflow for policy updates and dataset refresh.
+1. Replace prototype `cityLocations.json` with authoritative address/road segment data.
+2. Replace `footpathGuidance.json` with validated, location-level controls.
+3. Add geo-based checks (street width, frontage constraints, pedestrian flow hotspots).
+4. Add council-maintained versioning for policy text and dataset refresh dates.
+5. Add audit logs for policy updates.
 
 ## Notes
 

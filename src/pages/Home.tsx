@@ -2,118 +2,112 @@ import { useMemo, useState } from 'react'
 import QuestionCard from '../components/QuestionCard'
 import AddressLookup from '../components/AddressLookup'
 import ResultSummary from '../components/ResultSummary'
+import {
+  estimateEntitlement,
+  getCityLgaCoverage,
+  getFootpathDataSourceNote,
+  type EntitlementEstimate,
+  type StreetAddressRecord
+} from '../lib/addressLookup'
 import { evaluateEligibility, rulesConfig, type Responses } from '../lib/rulesEngine'
-import type { BusinessAddressRecord } from '../lib/addressLookup'
 
 const initialResponses: Partial<Responses> = {}
 
-const questions = [
-  {
-    key: 'hasExistingApproval',
-    title: 'Do you already have an outdoor dining approval with City of Sydney?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-      { value: 'not_sure', label: 'Not sure' }
-    ]
-  },
-  {
-    key: 'locationType',
-    title: 'Where will your outdoor dining be?',
-    options: [
-      { value: 'footpath', label: 'Footpath / public land' },
-      { value: 'road', label: 'Car parking space on street' },
-      { value: 'both', label: 'Both' },
-      { value: 'not_sure', label: 'Not sure' }
-    ]
-  },
-  {
-    key: 'operatorChangeOnly',
-    title: 'Are you changing operator only?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' }
-    ]
-  },
-  {
-    key: 'changingLayoutOrArea',
-    title: 'Are you changing layout or increasing area?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' }
-    ]
-  },
-  {
-    key: 'changingHours',
-    title: 'Are you changing hours?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' }
-    ]
-  },
-  {
-    key: 'servingAlcohol',
-    title: 'Will you serve alcohol outdoors?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-      { value: 'not_sure', label: 'Not sure' }
-    ]
-  },
-  {
-    key: 'inCityLga',
-    title: 'Is this in City of Sydney LGA?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-      { value: 'not_sure', label: 'Not sure' }
-    ]
-  },
-  {
-    key: 'inSpecialPrecinct',
-    title: 'Is the location in The Rocks, Darling Harbour, or Barangaroo?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' },
-      { value: 'not_sure', label: 'Not sure' }
-    ]
-  },
-  {
-    key: 'needClearanceHelp',
-    title: 'Do you need help understanding pedestrian clearances?',
-    options: [
-      { value: 'yes', label: 'Yes' },
-      { value: 'no', label: 'No' }
-    ]
-  }
-] as const
-
 const Home = () => {
   const [responses, setResponses] = useState<Partial<Responses>>(initialResponses)
+  const [selectedAddress, setSelectedAddress] = useState<StreetAddressRecord | null>(null)
+  const [entitlement, setEntitlement] = useState<EntitlementEstimate | null>(null)
 
-  const [prefillRecord, setPrefillRecord] = useState<BusinessAddressRecord | null>(null)
+  const questions = [
+    {
+      key: 'hasExistingApproval',
+      title: 'Do you already have an outdoor dining approval with City of Sydney?',
+      options: [
+        { value: 'no', label: 'No, this is a new application' },
+        { value: 'yes', label: 'Yes, we already have approval' },
+        { value: 'not_sure', label: 'Not sure' }
+      ]
+    },
+    {
+      key: 'locationType',
+      title: 'Where will your outdoor dining be?',
+      options: [
+        { value: 'footpath', label: 'Footpath / public land' },
+        { value: 'road', label: 'Car parking space on street' },
+        { value: 'both', label: 'Both' },
+        { value: 'not_sure', label: 'Not sure' }
+      ]
+    },
+    {
+      key: 'servingAlcohol',
+      title: 'Will you serve alcohol outdoors?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' },
+        { value: 'not_sure', label: 'Not sure' }
+      ]
+    },
+    {
+      key: 'needClearanceHelp',
+      title: 'Do you need help understanding pedestrian clearances?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' }
+      ]
+    }
+  ] as const
 
-  const answeredCount = Object.keys(responses).length
-  const canEvaluate = answeredCount === questions.length
+  const existingPermitQuestions = [
+    {
+      key: 'operatorChangeOnly',
+      title: 'Are you changing operator only?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' }
+      ]
+    },
+    {
+      key: 'changingLayoutOrArea',
+      title: 'Are you changing layout or increasing area?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' }
+      ]
+    },
+    {
+      key: 'changingHours',
+      title: 'Are you changing hours?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'no', label: 'No' }
+      ]
+    }
+  ] as const
 
-  const result = useMemo(
-    () => (canEvaluate ? evaluateEligibility(responses as Responses) : null),
-    [canEvaluate, responses]
-  )
+  const visibleQuestions =
+    responses.hasExistingApproval === 'yes' ? [...questions, ...existingPermitQuestions] : questions
+
+  const requiredKeys = visibleQuestions.map((question) => question.key)
+  const answeredCount = requiredKeys.filter((key) => Boolean(responses[key])).length
+  const canEvaluate = requiredKeys.every((key) => Boolean(responses[key])) && Boolean(selectedAddress)
+
+  const result = useMemo(() => (canEvaluate ? evaluateEligibility(responses as Responses) : null), [canEvaluate, responses])
 
   const handleAnswer = (key: keyof Responses, value: string) => {
     setResponses((prev) => ({ ...prev, [key]: value }))
   }
 
-  const applyAddressPrefill = (record: BusinessAddressRecord) => {
-    setPrefillRecord(record)
+  const applyAddressPrefill = (record: StreetAddressRecord) => {
+    setSelectedAddress(record)
+    setEntitlement(estimateEntitlement(record))
     setResponses((prev) => ({
       ...prev,
       inCityLga: record.inCityLga ? 'yes' : 'no',
-      inSpecialPrecinct: record.specialPrecinct ? 'yes' : 'no',
-      locationType: prev.locationType ?? record.locationTypeHint
+      inSpecialPrecinct: record.specialPrecinct ? 'yes' : 'no'
     }))
   }
+
+  const coverage = getCityLgaCoverage()
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
@@ -124,37 +118,34 @@ const Home = () => {
         </div>
         <h1 className="text-2xl font-semibold text-civic-ink sm:text-3xl">Outdoor Dining Eligibility Checker (prototype)</h1>
         <p className="text-sm text-slate-700 sm:text-base">
-          A quick guided flow for City of Sydney businesses. Answer a few short questions to see your likely pathway,
-          what to prepare now, and what can wait.
+          This version focuses on new City of Sydney outdoor dining applications. Enter your street location to see a
+          likely hours and space range, then get a clear new-application checklist.
         </p>
       </header>
 
       <AddressLookup onSelect={applyAddressPrefill} />
 
-      {prefillRecord ? (
-        <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
-          <h2 className="font-semibold text-civic-ink">Pre-filled location context</h2>
-          <p className="mt-1">
-            Based on <strong>{prefillRecord.businessName}</strong>, we pre-filled City of Sydney LGA and special
-            precinct answers. Please review and adjust if needed.
-          </p>
-        </section>
-      ) : null}
+      <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
+        <h2 className="font-semibold text-civic-ink">City of Sydney location coverage in this prototype</h2>
+        <p className="mt-1">
+          Loaded {coverage.totalRecords} representative street records across {coverage.suburbs.length} City of Sydney suburbs.
+        </p>
+      </section>
 
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between text-sm text-slate-700">
           <span>Progress</span>
           <span>
-            {answeredCount} / {questions.length}
+            {answeredCount} / {requiredKeys.length}
           </span>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full bg-civic-accent transition-all" style={{ width: `${(answeredCount / questions.length) * 100}%` }} />
+          <div className="h-full bg-civic-accent transition-all" style={{ width: `${(answeredCount / requiredKeys.length) * 100}%` }} />
         </div>
       </section>
 
       <section className="no-print space-y-4" aria-label="Eligibility questions">
-        {questions.map((question, index) => (
+        {visibleQuestions.map((question, index) => (
           <QuestionCard
             key={question.key}
             id={question.key}
@@ -162,13 +153,26 @@ const Home = () => {
             options={question.options}
             value={responses[question.key]}
             onChange={(value) => handleAnswer(question.key, value)}
-            isVisible={index === 0 || Boolean(responses[questions[index - 1].key])}
+            isVisible={index === 0 || Boolean(responses[visibleQuestions[index - 1].key])}
           />
         ))}
       </section>
 
-      {result ? (
+      {result && selectedAddress && entitlement ? (
         <section className="mt-6 space-y-4" aria-live="polite">
+          <div className="rounded-xl border border-civic-accent/30 bg-white p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-civic-accent">Likely footpath entitlement (prototype)</p>
+            <p className="mt-1 text-sm text-civic-ink">
+              <strong>{selectedAddress.streetAddress}, {selectedAddress.suburb}</strong> is treated as <strong>{entitlement.zoneLabel}</strong>.
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">
+              <li>Likely operating hours: {entitlement.likelyHours}</li>
+              <li>Likely maximum area: up to about {entitlement.likelyMaxAreaSqm}m² (site dependent)</li>
+              <li>{entitlement.clearanceRule}</li>
+            </ul>
+            <p className="mt-2 text-xs text-slate-600">{getFootpathDataSourceNote()}</p>
+          </div>
+
           <div className="no-print flex flex-wrap gap-3">
             <button
               type="button"
@@ -181,7 +185,8 @@ const Home = () => {
               type="button"
               onClick={() => {
                 setResponses(initialResponses)
-                setPrefillRecord(null)
+                setSelectedAddress(null)
+                setEntitlement(null)
               }}
               className="rounded-lg border border-civic-border px-4 py-2 text-sm font-medium text-civic-ink"
             >

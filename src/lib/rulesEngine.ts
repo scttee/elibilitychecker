@@ -5,9 +5,9 @@ export type Answer = 'yes' | 'no' | 'not_sure' | 'footpath' | 'road' | 'both'
 export interface Responses {
   hasExistingApproval: 'yes' | 'no' | 'not_sure'
   locationType: 'footpath' | 'road' | 'both' | 'not_sure'
-  operatorChangeOnly: 'yes' | 'no'
-  changingLayoutOrArea: 'yes' | 'no'
-  changingHours: 'yes' | 'no'
+  operatorChangeOnly?: 'yes' | 'no'
+  changingLayoutOrArea?: 'yes' | 'no'
+  changingHours?: 'yes' | 'no'
   servingAlcohol: 'yes' | 'no' | 'not_sure'
   inCityLga: 'yes' | 'no' | 'not_sure'
   inSpecialPrecinct: 'yes' | 'no' | 'not_sure'
@@ -52,7 +52,8 @@ const asArray = (value: Answer | Answer[]): Answer[] => (Array.isArray(value) ? 
 
 const matchesRule = (rule: Rule, responses: Responses): boolean =>
   Object.entries(rule.when).every(([key, expected]) => {
-    const answer = responses[key as keyof Responses] as Answer
+    const answer = responses[key as keyof Responses] as Answer | undefined
+    if (!answer) return false
     return asArray(expected as Answer | Answer[]).includes(answer)
   })
 
@@ -60,7 +61,7 @@ export const evaluateEligibility = (responses: Responses, config: RulesConfig = 
   const sortedRules = [...config.rules].sort((a, b) => b.priority - a.priority)
   const matchedRule = sortedRules.find((rule) => matchesRule(rule, responses))
 
-  const pathwayKey = matchedRule?.pathway ?? 'new_footpath_public_land'
+  const pathwayKey = matchedRule?.pathway ?? 'new_application'
   return {
     pathwayKey,
     pathwayLabel: config.pathways[pathwayKey] ?? 'Pathway to be confirmed by council',

@@ -1,5 +1,5 @@
 {
-  "sourceSummary": "Prototype logic based on City of Sydney public guidance pages (outdoor dining and consultation) and common pathway patterns. This is editable guidance text.",
+  "sourceSummary": "Prototype logic based on City of Sydney outdoor dining public guidance and conservative assumptions. Edit this text as policy references are updated.",
   "sourceLinks": [
     {
       "label": "City of Sydney outdoor dining information",
@@ -11,29 +11,27 @@
     }
   ],
   "pathways": {
-    "new_footpath_public_land": "New application on footpath or public land",
-    "road_reallocation": "Road reallocation",
-    "change_existing_permit": "Change something about an existing permit",
-    "renew_no_changes": "Renew with no changes"
+    "new_application": "New outdoor dining application",
+    "contact_council_existing": "Existing approval - contact council team"
   },
   "defaultChecklist": [
-    "Business and contact details",
-    "Simple site sketch showing tables, chairs and pedestrian path",
-    "Photos of current frontage and street context"
+    "Business details and contact person",
+    "Site sketch with furniture layout and dimensions",
+    "Photos of frontage, kerb and pedestrian path",
+    "Proposed days and hours of operation"
   ],
   "defaultNotNeededYet": [
-    "Detailed construction drawings",
-    "Buying custom furniture before council feedback"
+    "Detailed engineering drawings",
+    "Ordering custom furniture before council feedback"
   ],
   "defaultWarnings": [
     "Prototype guidance only. Requirements vary by location and circumstances. Council will confirm during assessment.",
     "If your situation is complex, contact council before spending money on drawings."
   ],
   "defaultNextSteps": [
-    "Check the recommended pathway and document list below",
-    "Prepare only the usual documents first",
-    "Contact council if anything is unclear",
-    "Lodge through the official City of Sydney process"
+    "Confirm your location details",
+    "Prepare the core checklist items",
+    "Review council guidance and lodge a new application"
   ],
   "rules": [
     {
@@ -42,138 +40,66 @@
       "when": {
         "inCityLga": "no"
       },
-      "pathway": "new_footpath_public_land",
+      "pathway": "new_application",
       "checklist": [
-        "Confirm the correct local council first"
+        "Confirm the correct local council for this address"
       ],
       "notNeededYet": [
-        "Preparing a City of Sydney application package"
+        "Preparing a City of Sydney application pack"
       ],
       "warnings": [
-        "Your site may be outside City of Sydney. Confirm jurisdiction before applying."
+        "The address appears outside City of Sydney LGA. This checker is for City of Sydney locations only."
       ],
       "nextSteps": [
-        "Use NSW planning portal tools to confirm council area",
-        "Contact the right council and request outdoor dining guidance"
+        "Check your council area first",
+        "Use that council's outdoor dining process"
       ]
     },
     {
-      "id": "renew_unchanged",
-      "priority": 95,
-      "when": {
-        "hasExistingApproval": "yes",
-        "changingLayoutOrArea": "no",
-        "changingHours": "no",
-        "operatorChangeOnly": "no"
-      },
-      "pathway": "renew_no_changes",
-      "checklist": [
-        "Current permit details",
-        "Any required insurance currency documents"
-      ],
-      "notNeededYet": [
-        "Fresh pedestrian clearance study if nothing has changed"
-      ],
-      "warnings": [],
-      "nextSteps": [
-        "Start renewal early to avoid expiry",
-        "Confirm there are no changes to layout, area or hours",
-        "Submit renewal through council channels"
-      ]
-    },
-    {
-      "id": "operator_only_change",
+      "id": "existing_approval_referral",
       "priority": 90,
       "when": {
-        "hasExistingApproval": "yes",
-        "operatorChangeOnly": "yes"
+        "hasExistingApproval": "yes"
       },
-      "pathway": "change_existing_permit",
+      "pathway": "contact_council_existing",
       "checklist": [
-        "Proof of new operator details",
-        "Evidence of right to occupy the premises"
+        "Current permit number",
+        "Summary of what you want to change",
+        "Any existing approved plans"
       ],
       "notNeededYet": [
-        "New full layout package unless requested"
+        "Starting a fresh new-application package"
       ],
       "warnings": [
-        "Council may still request extra details depending on permit history."
+        "This prototype is focused on new applications. Existing approvals are assessed case-by-case."
       ],
       "nextSteps": [
-        "Contact council to confirm transfer or variation process",
-        "Prepare operator identity and business records",
-        "Lodge change request"
-      ]
-    },
-    {
-      "id": "road_allocation",
-      "priority": 80,
-      "when": {
-        "locationType": ["road", "both"]
-      },
-      "pathway": "road_reallocation",
-      "checklist": [
-        "Concept showing parking lane use",
-        "Traffic and safety considerations at a simple level",
-        "Waste and service access notes"
-      ],
-      "notNeededYet": [
-        "Detailed engineering drawings before initial council advice"
-      ],
-      "warnings": [
-        "Road reallocation usually has extra assessment and consultation steps."
-      ],
-      "nextSteps": [
-        "Discuss feasibility with council early",
-        "Prepare concept layout and operations details",
-        "Expect consultation and technical review"
-      ]
-    },
-    {
-      "id": "existing_permit_changes",
-      "priority": 70,
-      "when": {
-        "hasExistingApproval": "yes",
-        "changingLayoutOrArea": "yes"
-      },
-      "pathway": "change_existing_permit",
-      "checklist": [
-        "Updated layout plan with dimensions",
-        "Short note explaining why changes are needed"
-      ],
-      "notNeededYet": [],
-      "warnings": [
-        "Changes to area or layout may trigger a new assessment."
-      ],
-      "nextSteps": [
-        "Review current permit conditions",
-        "Prepare updated plan",
-        "Submit variation request"
+        "Contact council to confirm whether you need a renewal or amendment",
+        "Follow council advice before preparing extra documents"
       ]
     },
     {
       "id": "new_application_default",
       "priority": 10,
       "when": {
-        "hasExistingApproval": ["no", "not_sure"]
+        "hasExistingApproval": ["no", "not_sure"],
+        "inCityLga": ["yes", "not_sure"]
       },
-      "pathway": "new_footpath_public_land",
+      "pathway": "new_application",
       "checklist": [
-        "Proposed operating hours",
-        "Furniture schedule (type and count)",
-        "Basic management plan for cleaning and access"
+        "Simple management notes for cleaning and access",
+        "Any liquor licence details if alcohol is proposed"
       ],
       "notNeededYet": [
-        "Final supplier invoices"
+        "Paying for full consultant package before initial feedback"
       ],
       "warnings": [
-        "Special precincts such as The Rocks, Darling Harbour or Barangaroo may involve other authorities."
+        "Locations in The Rocks, Darling Harbour, or Barangaroo may require extra authority approvals."
       ],
       "nextSteps": [
-        "Confirm site and pathway",
-        "Prepare draft documents",
-        "Get early council advice if unsure",
-        "Lodge application"
+        "Review your likely hours and area range below",
+        "Prepare only core documents first",
+        "Lodge a new application with council"
       ]
     }
   ]
