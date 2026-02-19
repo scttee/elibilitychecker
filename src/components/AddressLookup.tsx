@@ -14,8 +14,8 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
     <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Type your street or suburb to find a City of Sydney location. This pre-fills your location context and gives a
-        likely footpath entitlement range.
+        Type any street plus a City of Sydney suburb (for example, "123 George St, Haymarket"). The checker then pre-fills
+        location context and gives a likely footpath entitlement range.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">
@@ -27,7 +27,7 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         className="mt-1 w-full rounded-lg border border-civic-border px-3 py-2 text-sm"
-        placeholder="e.g. George Street, Haymarket"
+        placeholder="e.g. 123 George St, Haymarket"
       />
 
       {results.length > 0 ? (

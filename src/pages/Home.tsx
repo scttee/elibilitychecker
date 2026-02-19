@@ -128,8 +128,9 @@ const Home = () => {
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
         <h2 className="font-semibold text-civic-ink">City of Sydney location coverage in this prototype</h2>
         <p className="mt-1">
-          Loaded {coverage.totalRecords} representative street records across {coverage.suburbs.length} City of Sydney suburbs.
+          Covers {coverage.suburbCount} City of Sydney suburbs and supports any street entered within those suburbs.
         </p>
+        <p className="mt-1 text-xs text-slate-600">{coverage.coverageNote}</p>
       </section>
 
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
