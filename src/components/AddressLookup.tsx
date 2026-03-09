@@ -38,12 +38,12 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
     <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Search exact records from the local City of Sydney street and business registers. You can also enable optional
-        geocoder suggestions via environment settings.
+        Type your business name or street address. Pick the best match to start.
+        We use City of Sydney local records first, then optional geocoder suggestions if enabled.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">
-        Business name, street, or suburb
+        Business name, street address, or suburb
       </label>
       <input
         id="address-lookup"
@@ -51,10 +51,10 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         className="mt-1 w-full rounded-lg border border-civic-border px-3 py-2 text-sm"
-        placeholder="e.g. 45 George Street or Harbour Lane Cafe"
+        placeholder="e.g. 45 George Street, Sydney"
       />
 
-      {loading ? <p className="mt-2 text-xs text-slate-500">Searching…</p> : null}
+      {loading ? <p className="mt-2 text-xs text-slate-500">Finding matches...</p> : null}
 
       {results.length > 0 ? (
         <ul className="mt-3 space-y-2" role="listbox" aria-label="Street lookup results">

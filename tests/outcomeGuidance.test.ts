@@ -41,8 +41,8 @@ describe('outcome guidance helpers', () => {
 
   it('adds road constraint and alcohol constraint when relevant', () => {
     const constraints = getConstraintSummary({ ...responses, locationType: 'both', servingAlcohol: 'yes' }, address)
-    expect(constraints.join(' ')).toContain('road safety')
-    expect(constraints.join(' ')).toContain('Alcohol')
+    expect(constraints.join(' ').toLowerCase()).toContain('traffic checks')
+    expect(constraints.join(' ').toLowerCase()).toContain('alcohol')
   })
 
   it('builds address-specific checklist items', () => {

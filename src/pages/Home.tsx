@@ -128,22 +128,22 @@ const Home = () => {
         </div>
         <h1 className="text-2xl font-semibold text-civic-ink sm:text-3xl">Outdoor Dining Eligibility Checker (prototype)</h1>
         <p className="text-sm text-slate-700 sm:text-base">
-          This version focuses on new City of Sydney outdoor dining applications. Enter your street location to see a
-          likely hours and space range, then get a clear new-application checklist.
+          Made for first-time cafe and small business owners.
+          Pick your address, answer a few questions, and get a simple list of what to do next.
         </p>
       </header>
 
       <AddressLookup onSelect={applyAddressPrefill} />
 
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
-        <h2 className="font-semibold text-civic-ink">City of Sydney location coverage in this prototype</h2>
+        <h2 className="font-semibold text-civic-ink">Address data used in this prototype</h2>
         <p className="mt-1">
           Loaded {coverage.streetRecordCount} street records and {coverage.businessRecordCount} business records across{' '}
           {coverage.suburbs.length} City of Sydney suburbs.
         </p>
         <p className="mt-1 text-xs text-slate-600">{coverage.coverageNote}</p>
         <p className="mt-1 text-xs text-slate-600">
-          Data snapshot: {coverage.lastUpdated}. Confidence: {coverage.confidenceLabel}.
+          Last updated: {coverage.lastUpdated}. Confidence level: {coverage.confidenceLabel}.
         </p>
       </section>
 
@@ -186,7 +186,7 @@ const Home = () => {
           })()}
 
           <div className="rounded-xl border border-civic-accent/30 bg-white p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-civic-accent">Likely footpath entitlement (prototype)</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-civic-accent">Your likely outdoor dining limits (guide only)</p>
             <p className="mt-1 text-sm text-civic-ink">
               <strong>
                 {selectedAddress.streetAddress}, {selectedAddress.suburb}
@@ -202,7 +202,7 @@ const Home = () => {
           </div>
 
           <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
-            <h2 className="font-semibold text-civic-ink">Constraint summary for this address</h2>
+            <h2 className="font-semibold text-civic-ink">Important things to check for this address</h2>
             <ul className="mt-2 list-disc pl-5 text-slate-700">
               {getConstraintSummary(responses as Responses, selectedAddress).map((item) => (
                 <li key={item}>{item}</li>
@@ -211,7 +211,7 @@ const Home = () => {
           </section>
 
           <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
-            <h2 className="font-semibold text-civic-ink">Address-specific evidence checklist</h2>
+            <h2 className="font-semibold text-civic-ink">Your address-specific checklist</h2>
             <ul className="mt-2 list-disc pl-5 text-slate-700">
               {getAddressSpecificChecklist(result, responses as Responses, selectedAddress).map((item) => (
                 <li key={item}>{item}</li>
@@ -244,10 +244,9 @@ const Home = () => {
 
           {responses.needClearanceHelp === 'yes' ? (
             <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
-              <h2 className="font-semibold text-civic-ink">Pedestrian clearance help</h2>
+              <h2 className="font-semibold text-civic-ink">Need help with pedestrian clearances?</h2>
               <p className="mt-2 text-slate-700">
-                For detailed pedestrian clearance guidance, review the City of Sydney outdoor dining page and draft
-                outdoor dining guidelines, then call the City of Sydney duty planner line.
+                Start with these links. If still unsure, call City of Sydney and ask to speak with the duty planner.
               </p>
               <ul className="mt-2 list-disc pl-5 text-slate-700">
                 <li>
@@ -278,10 +277,10 @@ const Home = () => {
           ) : null}
 
           <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
-            <h2 className="font-semibold text-civic-ink">Not sure?</h2>
+            <h2 className="font-semibold text-civic-ink">Still not sure?</h2>
             <p className="mt-2 text-slate-700">
-              Call City of Sydney on <strong>(02) 0000 0000</strong> (placeholder). If anything is unclear, contact
-              council before lodging and before spending money on detailed drawings.
+              Call City of Sydney on <strong>(02) 9265 9333</strong>.
+              Ask for the duty planner before you spend money on plans or drawings.
             </p>
           </section>
         </section>

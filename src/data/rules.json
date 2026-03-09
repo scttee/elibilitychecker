@@ -1,5 +1,5 @@
 {
-  "sourceSummary": "Prototype logic based on City of Sydney outdoor dining public guidance and conservative assumptions. Edit this text as policy references are updated.",
+  "sourceSummary": "Prototype guide based on public City of Sydney outdoor dining information. We use conservative settings. Council confirms final requirements.",
   "sourceLinks": [
     {
       "label": "City of Sydney outdoor dining information",
@@ -16,26 +16,26 @@
   ],
   "pathways": {
     "new_application": "New outdoor dining application",
-    "road_reallocation": "Road reallocation",
-    "contact_council_existing": "Existing approval - contact council team"
+    "road_reallocation": "Roadside application (parking lane use)",
+    "contact_council_existing": "You already have approval \u2014 speak with council"
   },
   "defaultChecklist": [
-    "Business details and contact person",
-    "Site sketch with furniture layout and dimensions",
-    "Proposed days and hours of operation"
+    "Business name and contact person",
+    "Simple layout sketch with sizes",
+    "Proposed days and trading hours"
   ],
   "defaultNotNeededYet": [
     "Detailed engineering drawings",
-    "Ordering custom furniture before council feedback"
+    "Buying custom furniture before council advice"
   ],
   "defaultWarnings": [
     "Prototype guidance only. Requirements vary by location and circumstances. Council will confirm during assessment.",
     "If your situation is complex, contact council before spending money on drawings."
   ],
   "defaultNextSteps": [
-    "Confirm your location details",
-    "Prepare the core checklist items",
-    "Review council guidance and lodge a new application"
+    "Confirm your address and pathway",
+    "Prepare only the core documents",
+    "Check council guidance and lodge your application"
   ],
   "rules": [
     {
@@ -75,7 +75,7 @@
         "Starting a fresh new-application package"
       ],
       "warnings": [
-        "This prototype is focused on new applications. Existing approvals are assessed case-by-case."
+        "This tool is mainly for new applications. Existing approvals are handled case by case."
       ],
       "nextSteps": [
         "Contact council to confirm whether you need a renewal or amendment",
@@ -86,26 +86,35 @@
       "id": "road_reallocation_new",
       "priority": 80,
       "when": {
-        "hasExistingApproval": ["no", "not_sure"],
-        "locationType": ["road", "both"],
-        "inCityLga": ["yes", "not_sure"]
+        "hasExistingApproval": [
+          "no",
+          "not_sure"
+        ],
+        "locationType": [
+          "road",
+          "both"
+        ],
+        "inCityLga": [
+          "yes",
+          "not_sure"
+        ]
       },
       "pathway": "road_reallocation",
       "checklist": [
-        "Concept plan showing parking lane occupation and dimensions",
-        "Pedestrian and traffic safety notes",
-        "Waste collection and service access notes"
+        "Simple concept showing parking lane use and sizes",
+        "Short safety note for people walking and traffic",
+        "How waste collection and deliveries will still work"
       ],
       "notNeededYet": [
         "Final engineering certification before initial council advice"
       ],
       "warnings": [
-        "Road reallocation usually requires additional technical review and consultation."
+        "Roadside applications usually need extra review and may take longer."
       ],
       "nextSteps": [
-        "Book early pre-lodgement advice with council",
-        "Prepare a road-use concept package",
-        "Expect extra assessment and public consultation steps"
+        "Book early advice with council",
+        "Prepare a simple roadside concept",
+        "Expect extra assessment and consultation"
       ]
     },
     {
@@ -123,18 +132,18 @@
       },
       "pathway": "new_application",
       "checklist": [
-        "Simple management notes for cleaning and access",
-        "Any liquor licence details if alcohol is proposed"
+        "Simple cleaning/access note for daily operation",
+        "Liquor licence details (if you plan to serve alcohol)"
       ],
       "notNeededYet": [
         "Paying for full consultant package before initial feedback"
       ],
       "warnings": [
-        "Locations in The Rocks, Darling Harbour, or Barangaroo may require extra authority approvals."
+        "The Rocks, Darling Harbour, and Barangaroo may need extra authority approvals."
       ],
       "nextSteps": [
-        "Review your likely hours and area range below",
-        "Prepare only core documents first",
+        "Review your likely hours and size range",
+        "Prepare the core documents",
         "Lodge a new application with council"
       ]
     }

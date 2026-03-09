@@ -13,45 +13,45 @@ export const getReadinessStatus = (result: EvaluationResult, responses: Response
   if (responses.inCityLga === 'no') {
     return {
       level: 'red',
-      title: 'Likely outside scope',
-      message: 'This address looks outside City of Sydney. Confirm the right council before preparing an application.'
+      title: 'May be outside City of Sydney',
+      message: 'This address may be outside City of Sydney. Check the council area before you prepare documents.'
     }
   }
 
   if (result.pathwayKey === 'road_reallocation') {
     return {
       level: 'amber',
-      title: 'Likely possible with extra review',
-      message: 'Road reallocation may be possible, but usually needs extra technical review and consultation.'
+      title: 'Possible, but needs extra checks',
+      message: 'Using a parking lane may be possible, but it usually needs extra checks and consultation.'
     }
   }
 
   return {
     level: 'green',
-    title: 'Likely straightforward to proceed',
-    message: 'You can likely prepare a standard new-application package now and refine details with council feedback.'
+    title: 'Good to start preparing now',
+    message: 'You can usually start with a simple application pack, then update details after council feedback.'
   }
 }
 
 export const getConstraintSummary = (responses: Responses, address: StreetAddressRecord): string[] => {
   const constraints = [
-    `Address certainty: matched from ${address.sourceType === 'business_register' ? 'business register' : 'street register'}.`
+    `Address match source: ${address.sourceType === 'business_register' ? 'business register' : 'street register'}.`
   ]
 
   if (responses.locationType === 'road' || responses.locationType === 'both') {
-    constraints.push('On-street dining usually requires road safety and traffic impact consideration.')
+    constraints.push('Roadside dining usually needs extra safety and traffic checks.')
   }
 
   if (address.specialPrecinct) {
-    constraints.push(`${address.specialPrecinct} may involve additional authority pathways and approvals.`)
+    constraints.push(`${address.specialPrecinct} may need extra approvals from other authorities.`)
   }
 
   if (responses.servingAlcohol === 'yes') {
-    constraints.push('Alcohol service outdoors may require additional licensing alignment.')
+    constraints.push('Serving alcohol outside may need extra licence checks.')
   }
 
   if (responses.needClearanceHelp === 'yes') {
-    constraints.push('Pedestrian clearance checks should be validated early with council guidance.')
+    constraints.push('Check pedestrian clearances early to avoid redesign work later.')
   }
 
   return constraints
@@ -63,20 +63,20 @@ export const getAddressSpecificChecklist = (
   address: StreetAddressRecord
 ): string[] => {
   const items = [
-    `Site plan labelled with selected address: ${address.streetAddress}, ${address.suburb}.`,
-    `Operating hours statement aligned to likely pathway (${result.pathwayLabel}).`
+    `Simple site plan with this address: ${address.streetAddress}, ${address.suburb}.`,
+    `Proposed operating hours note for pathway (${result.pathwayLabel}).`
   ]
 
   if (responses.locationType === 'road' || responses.locationType === 'both') {
-    items.push('Road occupancy concept with kerbside dimensions and access points.')
+    items.push('Simple kerbside use sketch with sizes and access points.')
   }
 
   if (responses.servingAlcohol === 'yes') {
-    items.push('Liquor licence details and an outdoor alcohol management note.')
+    items.push('Liquor licence details and a short outdoor alcohol note.')
   }
 
   if (address.specialPrecinct) {
-    items.push(`Authority coordination note for ${address.specialPrecinct}.`)
+    items.push(`Short note on approvals required for ${address.specialPrecinct}.`)
   }
 
   return items
