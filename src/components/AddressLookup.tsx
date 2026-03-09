@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { searchStreetAddresses, type StreetAddressRecord } from '../lib/addressLookup'
 
 interface AddressLookupProps {
@@ -8,14 +8,38 @@ interface AddressLookupProps {
 const AddressLookup = ({ onSelect }: AddressLookupProps) => {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<StreetAddressRecord | null>(null)
-  const results = useMemo(() => searchStreetAddresses(query), [query])
+  const [results, setResults] = useState<StreetAddressRecord[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const run = async () => {
+      if (!query.trim()) {
+        setResults([])
+        return
+      }
+
+      setLoading(true)
+      const matches = await searchStreetAddresses(query)
+      if (!cancelled) {
+        setResults(matches)
+        setLoading(false)
+      }
+    }
+
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [query])
 
   return (
     <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Search exact records from the local City of Sydney street and business registers. Select a matched address to get
-        location certainty and likely entitlement guidance.
+        Search exact records from the local City of Sydney street and business registers. You can also enable optional
+        geocoder suggestions via environment settings.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">
@@ -29,6 +53,8 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
         className="mt-1 w-full rounded-lg border border-civic-border px-3 py-2 text-sm"
         placeholder="e.g. 45 George Street or Harbour Lane Cafe"
       />
+
+      {loading ? <p className="mt-2 text-xs text-slate-500">Searching…</p> : null}
 
       {results.length > 0 ? (
         <ul className="mt-3 space-y-2" role="listbox" aria-label="Street lookup results">
@@ -44,9 +70,17 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
                 }}
               >
                 <p className="text-sm font-semibold text-civic-ink">
-                  {record.businessName ? `${record.businessName} — ` : ''}{record.streetAddress}, {record.suburb}
+                  {record.businessName ? `${record.businessName} — ` : ''}
+                  {record.streetAddress}, {record.suburb}
                 </p>
-                <p className="text-xs text-slate-600">{record.postcode} · {record.sourceType === 'business_register' ? 'Business register' : 'Street register'}</p>
+                <p className="text-xs text-slate-600">
+                  {record.postcode} ·{' '}
+                  {record.sourceType === 'business_register'
+                    ? 'Business register'
+                    : record.sourceType === 'street_register'
+                      ? 'Street register'
+                      : 'Geocoder suggestion'}
+                </p>
               </button>
             </li>
           ))}

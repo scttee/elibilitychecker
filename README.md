@@ -136,3 +136,53 @@ This prototype is guidance only and does not provide approvals.
 - Nearby bus stop, crossing, loading zone, and fire egress constraints.
 - Neighbour notification/consultation timing hints for road reallocation cases.
 - Clear split between likely baseline controls and site-specific assessment items.
+
+## Geocoding + LGA boundary CSV quickstart
+
+If you have an LGA boundary CSV locally, you can convert it into JSON points for use in a spatial pre-check:
+
+```bash
+node scripts/convertLgaBoundaryCsv.mjs /path/to/your/lga-boundary.csv src/data/lgaBoundaryPoints.json
+```
+
+Expected CSV columns include either:
+- `lat` + `lon` (or `latitude` + `longitude`), or
+- `y` + `x`
+
+Then you can wire a point-in-polygon check in the lookup layer to hard-confirm whether a geocoded address is inside City of Sydney LGA before rules are evaluated.
+
+### Suggested free geocoding stack
+
+1. Use a free geocoder (e.g. Nominatim) for address normalization/autocomplete.
+2. Run a boundary containment check against your LGA polygon/boundary points.
+3. Map the confirmed location to your local street/business register for deterministic certainty.
+4. Feed the result into the existing rules engine.
+
+## New UI guidance enhancements included
+
+- Readiness status band (green/amber/red) to show likely proceedability.
+- Constraint summary cards based on selected address/pathway (road, precinct, alcohol, clearance help).
+- Address-specific evidence checklist generated from selected record + pathway.
+- Data freshness and confidence labels shown in coverage section.
+
+## Turn on geocoding (free provider option)
+
+This prototype now supports optional geocoder suggestions in addition to local register matching.
+
+Create a `.env` file (or set env vars in your host):
+
+```bash
+VITE_ENABLE_GEOCODING=true
+VITE_GEOCODER_PROVIDER=nominatim
+VITE_GEOCODER_BASE_URL=https://nominatim.openstreetmap.org
+VITE_GEOCODER_COUNTRY_CODE=au
+```
+
+How it works:
+1. Local register results are always searched first.
+2. If geocoding is enabled, Nominatim suggestions are fetched and merged.
+3. Suggestions are filtered to known City of Sydney suburbs before display.
+
+Notes:
+- Nominatim usage limits apply; for production use a hosted geocoder/proxy.
+- Keep authoritative council/policy data in your own datasets and use geocoding primarily for normalization and search UX.

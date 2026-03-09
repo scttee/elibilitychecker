@@ -9,9 +9,20 @@ import {
   type EntitlementEstimate,
   type StreetAddressRecord
 } from '../lib/addressLookup'
+import {
+  getAddressSpecificChecklist,
+  getConstraintSummary,
+  getReadinessStatus
+} from '../lib/outcomeGuidance'
 import { evaluateEligibility, rulesConfig, type Responses } from '../lib/rulesEngine'
 
 const initialResponses: Partial<Responses> = {}
+
+const statusClass: Record<'green' | 'amber' | 'red', string> = {
+  green: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+  amber: 'border-amber-200 bg-amber-50 text-amber-900',
+  red: 'border-rose-200 bg-rose-50 text-rose-900'
+}
 
 const Home = () => {
   const [responses, setResponses] = useState<Partial<Responses>>(initialResponses)
@@ -84,8 +95,7 @@ const Home = () => {
     }
   ] as const
 
-  const visibleQuestions =
-    responses.hasExistingApproval === 'yes' ? [...questions, ...existingPermitQuestions] : questions
+  const visibleQuestions = responses.hasExistingApproval === 'yes' ? [...questions, ...existingPermitQuestions] : questions
 
   const requiredKeys = visibleQuestions.map((question) => question.key)
   const answeredCount = requiredKeys.filter((key) => Boolean(responses[key])).length
@@ -128,9 +138,13 @@ const Home = () => {
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-civic-soft p-4 text-sm text-slate-700">
         <h2 className="font-semibold text-civic-ink">City of Sydney location coverage in this prototype</h2>
         <p className="mt-1">
-          Loaded {coverage.streetRecordCount} street records and {coverage.businessRecordCount} business records across {coverage.suburbs.length} City of Sydney suburbs.
+          Loaded {coverage.streetRecordCount} street records and {coverage.businessRecordCount} business records across{' '}
+          {coverage.suburbs.length} City of Sydney suburbs.
         </p>
         <p className="mt-1 text-xs text-slate-600">{coverage.coverageNote}</p>
+        <p className="mt-1 text-xs text-slate-600">
+          Data snapshot: {coverage.lastUpdated}. Confidence: {coverage.confidenceLabel}.
+        </p>
       </section>
 
       <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
@@ -161,10 +175,23 @@ const Home = () => {
 
       {result && selectedAddress && entitlement ? (
         <section className="mt-6 space-y-4" aria-live="polite">
+          {(() => {
+            const status = getReadinessStatus(result, responses as Responses)
+            return (
+              <section className={`rounded-xl border p-4 text-sm ${statusClass[status.level]}`}>
+                <h2 className="font-semibold">{status.title}</h2>
+                <p className="mt-1">{status.message}</p>
+              </section>
+            )
+          })()}
+
           <div className="rounded-xl border border-civic-accent/30 bg-white p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-civic-accent">Likely footpath entitlement (prototype)</p>
             <p className="mt-1 text-sm text-civic-ink">
-              <strong>{selectedAddress.streetAddress}, {selectedAddress.suburb}</strong> is treated as <strong>{entitlement.zoneLabel}</strong>.
+              <strong>
+                {selectedAddress.streetAddress}, {selectedAddress.suburb}
+              </strong>{' '}
+              is treated as <strong>{entitlement.zoneLabel}</strong>.
             </p>
             <ul className="mt-2 list-disc pl-5 text-sm text-slate-700">
               <li>Likely operating hours: {entitlement.likelyHours}</li>
@@ -173,6 +200,24 @@ const Home = () => {
             </ul>
             <p className="mt-2 text-xs text-slate-600">{getFootpathDataSourceNote()}</p>
           </div>
+
+          <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
+            <h2 className="font-semibold text-civic-ink">Constraint summary for this address</h2>
+            <ul className="mt-2 list-disc pl-5 text-slate-700">
+              {getConstraintSummary(responses as Responses, selectedAddress).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="rounded-xl border border-civic-border bg-white p-4 text-sm">
+            <h2 className="font-semibold text-civic-ink">Address-specific evidence checklist</h2>
+            <ul className="mt-2 list-disc pl-5 text-slate-700">
+              {getAddressSpecificChecklist(result, responses as Responses, selectedAddress).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
 
           <div className="no-print flex flex-wrap gap-3">
             <button
@@ -206,16 +251,28 @@ const Home = () => {
               </p>
               <ul className="mt-2 list-disc pl-5 text-slate-700">
                 <li>
-                  <a className="text-civic-accent underline" href="https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining" target="_blank" rel="noreferrer">
+                  <a
+                    className="text-civic-accent underline"
+                    href="https://www.cityofsydney.nsw.gov.au/business-permits-approvals-tenders/outdoor-dining"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Outdoor dining information
                   </a>
                 </li>
                 <li>
-                  <a className="text-civic-accent underline" href="https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/projects/policy-planning-changes/your-say-proposed-changes-outdoor-dining/attachment-c---draft-outdoor-dining-guidelines---for-exhibition_accessible_bb.pdf?download=true" target="_blank" rel="noreferrer">
+                  <a
+                    className="text-civic-accent underline"
+                    href="https://www.cityofsydney.nsw.gov.au/-/media/corporate/files/projects/policy-planning-changes/your-say-proposed-changes-outdoor-dining/attachment-c---draft-outdoor-dining-guidelines---for-exhibition_accessible_bb.pdf?download=true"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Draft outdoor dining guidelines (PDF)
                   </a>
                 </li>
-                <li>Call City of Sydney on <strong>(02) 9265 9333</strong> and ask for the duty planner.</li>
+                <li>
+                  Call City of Sydney on <strong>(02) 9265 9333</strong> and ask for the duty planner.
+                </li>
               </ul>
             </section>
           ) : null}
