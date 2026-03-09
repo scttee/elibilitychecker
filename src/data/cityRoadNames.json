@@ -1,0 +1,19 @@
+{
+  "source": "local prototype sample",
+  "generatedAt": "2026-03-09T00:00:00.000Z",
+  "roadCount": 12,
+  "roads": [
+    "Botany Road",
+    "Broadway",
+    "Cleveland Street",
+    "Crown Street",
+    "Dixon Street",
+    "George Street",
+    "Glebe Point Road",
+    "Harris Street",
+    "Hickson Road",
+    "Kent Street",
+    "Macleay Street",
+    "Oxford Street"
+  ]
+}
