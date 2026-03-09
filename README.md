@@ -186,3 +186,17 @@ How it works:
 Notes:
 - Nominatim usage limits apply; for production use a hosted geocoder/proxy.
 - Keep authoritative council/policy data in your own datasets and use geocoding primarily for normalization and search UX.
+
+## Import full City of Sydney road-name register (ArcGIS)
+
+To pull the City of Sydney road-name dataset (for the ~1,187 streets target), run:
+
+```bash
+node scripts/importRoadNamesArcgis.mjs \
+  "https://services1.arcgis.com/cNVyNtjGVZybOQWZ/arcgis/rest/services/Road_names/FeatureServer/0/query" \
+  src/data/cityRoadNames.json
+```
+
+This script pages through the ArcGIS endpoint and writes a deduplicated road-name list.
+
+After import, the app shows road register count in the coverage panel. You can then map these roads to full address points (G-NAF or council address data) for address-level certainty.

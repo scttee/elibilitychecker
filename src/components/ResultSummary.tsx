@@ -9,7 +9,7 @@ interface ResultSummaryProps {
 }
 
 const Section = ({ title, items, icon }: { title: string; items: string[]; icon: ReactNode }) => (
-  <section className="rounded-xl border border-civic-border bg-white p-4 sm:p-5">
+  <section className="rounded-2xl border border-civic-border bg-white p-4 shadow-sm sm:p-5">
     <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-civic-accent">
       {icon}
       {title}
@@ -26,8 +26,8 @@ const Section = ({ title, items, icon }: { title: string; items: string[]; icon:
 )
 
 const ResultSummary = ({ result, sourceSummary, sourceLinks }: ResultSummaryProps) => (
-  <section className="print-surface space-y-4 rounded-2xl border border-civic-border bg-civic-soft p-4 shadow-sm sm:p-6">
-    <div className="rounded-xl border border-civic-accent/30 bg-white p-4">
+  <section className="print-surface space-y-4 rounded-3xl border border-civic-border bg-civic-soft/80 p-4 shadow-md sm:p-6">
+    <div className="rounded-2xl border border-civic-accent/30 bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-wide text-civic-accent">Likely pathway</p>
       <p className="mt-1 text-lg font-semibold text-civic-ink">{result.pathwayLabel}</p>
       <p className="mt-2 text-sm text-slate-600">This is a likely pathway. Council will confirm requirements during assessment.</p>

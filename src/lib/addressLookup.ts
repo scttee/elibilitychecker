@@ -1,6 +1,7 @@
 import cityLocationsData from '../data/cityLocations.json'
 import businessAddressesData from '../data/businessAddresses.json'
 import footpathGuidanceData from '../data/footpathGuidance.json'
+import cityRoadNamesData from '../data/cityRoadNames.json'
 
 export type FootpathZone = 'local' | 'high_street' | 'city_centre' | 'special'
 
@@ -50,6 +51,13 @@ interface FootpathGuidanceConfig {
   zones: Record<FootpathZone, ZoneGuidance>
 }
 
+interface CityRoadNamesData {
+  source: string
+  generatedAt: string
+  roadCount: number
+  roads: string[]
+}
+
 interface NominatimResult {
   place_id: number
   lat: string
@@ -74,6 +82,7 @@ export interface EntitlementEstimate {
 const streetRecords = cityLocationsData as CityLocationRecord[]
 const businessRecords = businessAddressesData as BusinessAddressRecord[]
 const guidanceConfig = footpathGuidanceData as FootpathGuidanceConfig
+const roadNamesConfig = cityRoadNamesData as CityRoadNamesData
 
 const zoneBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.footpathZone]))
 const precinctBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.specialPrecinct]))
@@ -187,6 +196,12 @@ export const estimateEntitlement = (record: StreetAddressRecord): EntitlementEst
 }
 
 export const getFootpathDataSourceNote = () => guidanceConfig.sourceNote
+
+export const getRoadNameCoverage = () => ({
+  source: roadNamesConfig.source,
+  generatedAt: roadNamesConfig.generatedAt,
+  roadCount: roadNamesConfig.roadCount
+})
 
 export const getCityLgaCoverage = () => {
   const suburbs = [...new Set(streetRecords.filter((r) => r.inCityLga).map((record) => record.suburb))].sort((a, b) =>

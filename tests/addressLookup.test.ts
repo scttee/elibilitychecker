@@ -3,6 +3,7 @@ import {
   estimateEntitlement,
   geocodeAddressQuery,
   getCityLgaCoverage,
+  getRoadNameCoverage,
   searchStreetAddresses,
   searchStreetAddressesLocal
 } from '../src/lib/addressLookup'
@@ -38,6 +39,12 @@ describe('address lookup', () => {
   it('merges async lookup results without crashing', async () => {
     const results = await searchStreetAddresses('George Street')
     expect(results.length).toBeGreaterThan(0)
+  })
+
+
+  it('reports road-name register metadata', () => {
+    const roads = getRoadNameCoverage()
+    expect(roads.roadCount).toBeGreaterThan(0)
   })
 
   it('maps geocoder results when enabled fetch returns valid suburb', async () => {

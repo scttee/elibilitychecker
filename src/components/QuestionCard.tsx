@@ -21,7 +21,7 @@ const QuestionCard = ({ id, title, hint, value, onChange, options, isVisible, ri
   if (!isVisible) return null
 
   return (
-    <fieldset className="rounded-xl border border-civic-border bg-white p-4 shadow-sm sm:p-5">
+    <fieldset className="rounded-2xl border border-civic-border bg-white p-4 shadow-sm sm:p-5">
       <legend className="w-full">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
@@ -32,23 +32,30 @@ const QuestionCard = ({ id, title, hint, value, onChange, options, isVisible, ri
         </div>
       </legend>
       <div role="radiogroup" aria-labelledby={id} className="grid gap-2">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="cursor-pointer rounded-lg border border-civic-border p-3 text-sm transition hover:border-civic-accent focus-within:border-civic-accent"
-          >
-            <input
-              className="mr-2 accent-civic-accent"
-              type="radio"
-              name={id}
-              value={option.value}
-              checked={value === option.value}
-              onChange={(event) => onChange(event.target.value)}
-            />
-            <span className="font-medium text-civic-ink">{option.label}</span>
-            {option.hint ? <p className="ml-6 mt-1 text-xs text-slate-500">{option.hint}</p> : null}
-          </label>
-        ))}
+        {options.map((option) => {
+          const isActive = value === option.value
+          return (
+            <label
+              key={option.value}
+              className={`cursor-pointer rounded-xl border p-3 text-sm transition ${
+                isActive
+                  ? 'border-civic-accent bg-civic-soft/70 ring-1 ring-civic-accent/20'
+                  : 'border-civic-border hover:border-civic-accent'
+              }`}
+            >
+              <input
+                className="mr-2 accent-civic-accent"
+                type="radio"
+                name={id}
+                value={option.value}
+                checked={isActive}
+                onChange={(event) => onChange(event.target.value)}
+              />
+              <span className="font-medium text-civic-ink">{option.label}</span>
+              {option.hint ? <p className="ml-6 mt-1 text-xs text-slate-500">{option.hint}</p> : null}
+            </label>
+          )
+        })}
       </div>
     </fieldset>
   )

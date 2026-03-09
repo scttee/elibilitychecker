@@ -6,6 +6,7 @@ import {
   estimateEntitlement,
   getCityLgaCoverage,
   getFootpathDataSourceNote,
+  getRoadNameCoverage,
   type EntitlementEstimate,
   type StreetAddressRecord
 } from '../lib/addressLookup'
@@ -118,9 +119,14 @@ const Home = () => {
   }
 
   const coverage = getCityLgaCoverage()
+  const roadCoverage = getRoadNameCoverage()
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-6 sm:py-10">
+      <div className="mb-4 rounded-2xl border border-civic-accent/20 bg-gradient-to-r from-white to-civic-soft p-4">
+        <p className="text-xs uppercase tracking-wide text-civic-accent font-semibold">City of Sydney prototype</p>
+        <p className="mt-1 text-sm text-slate-700">Quick guidance for first-time hospitality operators.</p>
+      </div>
       <header className="no-print mb-6 space-y-4">
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-slate-800">
           <strong>Prototype guidance only.</strong> Requirements vary by location and circumstances. Council will
@@ -139,11 +145,12 @@ const Home = () => {
         <h2 className="font-semibold text-civic-ink">Address data used in this prototype</h2>
         <p className="mt-1">
           Loaded {coverage.streetRecordCount} street records and {coverage.businessRecordCount} business records across{' '}
-          {coverage.suburbs.length} City of Sydney suburbs.
+          {coverage.suburbs.length} City of Sydney suburbs. Road-name register loaded: {roadCoverage.roadCount}.
         </p>
         <p className="mt-1 text-xs text-slate-600">{coverage.coverageNote}</p>
         <p className="mt-1 text-xs text-slate-600">
           Last updated: {coverage.lastUpdated}. Confidence level: {coverage.confidenceLabel}.
+          Road register snapshot: {roadCoverage.generatedAt}.
         </p>
       </section>
 
