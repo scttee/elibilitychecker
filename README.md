@@ -165,31 +165,38 @@ Then you can wire a point-in-polygon check in the lookup layer to hard-confirm w
 - Address-specific evidence checklist generated from selected record + pathway.
 - Data freshness and confidence labels shown in coverage section.
 
-## Turn on geocoding (free provider option)
+## Geocoding is embedded (free provider default)
 
-This prototype now supports optional geocoder suggestions in addition to local register matching.
+Geocoding suggestions are now embedded by default using Nominatim.
+No setup is required for standard usage.
 
-Create a `.env` file (or set env vars in your host):
+Optional overrides (if needed):
 
 ```bash
-VITE_ENABLE_GEOCODING=true
+VITE_ENABLE_GEOCODING=false   # disable geocoding
 VITE_GEOCODER_PROVIDER=nominatim
 VITE_GEOCODER_BASE_URL=https://nominatim.openstreetmap.org
 VITE_GEOCODER_COUNTRY_CODE=au
 ```
 
 How it works:
-1. Local register results are always searched first.
-2. If geocoding is enabled, Nominatim suggestions are fetched and merged.
+1. Local register results are searched first.
+2. Nominatim suggestions are fetched and merged when available.
 3. Suggestions are filtered to known City of Sydney suburbs before display.
 
 Notes:
+- If geocoder requests fail, the app falls back to local register results.
 - Nominatim usage limits apply; for production use a hosted geocoder/proxy.
-- Keep authoritative council/policy data in your own datasets and use geocoding primarily for normalization and search UX.
 
 ## Import full City of Sydney road-name register (ArcGIS)
 
-To pull the City of Sydney road-name dataset (for the ~1,187 streets target), run:
+To pull the City of Sydney road-name dataset (target ~1,187 streets), run:
+
+```bash
+npm run import:roads
+```
+
+or directly:
 
 ```bash
 node scripts/importRoadNamesArcgis.mjs \
@@ -197,6 +204,11 @@ node scripts/importRoadNamesArcgis.mjs \
   src/data/cityRoadNames.json
 ```
 
-This script pages through the ArcGIS endpoint and writes a deduplicated road-name list.
+What this now does:
+1. Pages through ArcGIS records in batches (`resultOffset`/`resultRecordCount`).
+2. Normalises and deduplicates road names from known attribute fields.
+3. Writes `src/data/cityRoadNames.json` used by the app coverage panel.
 
-After import, the app shows road register count in the coverage panel. You can then map these roads to full address points (G-NAF or council address data) for address-level certainty.
+Next step after road names import:
+- Join the road-name list to full address points (for example G-NAF or council address points) so lookup can move from road-level to full address-level certainty.
+

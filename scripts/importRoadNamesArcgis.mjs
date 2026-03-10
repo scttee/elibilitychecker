@@ -1,4 +1,9 @@
 import fs from 'node:fs'
+import {
+  buildArcgisQueryUrl,
+  extractRoadNamesFromFeatures,
+  normaliseRoadName
+} from './roadNamesImportUtils.mjs'
 
 const endpoint =
   process.argv[2] ??
@@ -11,13 +16,7 @@ let hasMore = true
 const names = new Set()
 
 while (hasMore) {
-  const url = new URL(endpoint)
-  url.searchParams.set('where', '1=1')
-  url.searchParams.set('outFields', '*')
-  url.searchParams.set('returnGeometry', 'false')
-  url.searchParams.set('f', 'json')
-  url.searchParams.set('resultRecordCount', String(pageSize))
-  url.searchParams.set('resultOffset', String(offset))
+  const url = buildArcgisQueryUrl({ endpoint, pageSize, offset })
 
   const response = await fetch(url)
   if (!response.ok) {
@@ -27,13 +26,8 @@ while (hasMore) {
   const data = await response.json()
   const features = data.features ?? []
 
-  for (const feature of features) {
-    const attributes = feature.attributes ?? {}
-    const candidate =
-      attributes.ROAD_NAME ?? attributes.ROADNAME ?? attributes.STREET ?? attributes.NAME ?? attributes.road_name
-    if (typeof candidate === 'string' && candidate.trim()) {
-      names.add(candidate.trim())
-    }
+  for (const name of extractRoadNamesFromFeatures(features)) {
+    names.add(normaliseRoadName(name))
   }
 
   const exceeded = Boolean(data.exceededTransferLimit)

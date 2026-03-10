@@ -88,7 +88,7 @@ const zoneBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowe
 const precinctBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.specialPrecinct]))
 const knownSuburbs = new Set(streetRecords.map((record) => record.suburb.toLowerCase()))
 
-const enableGeocoding = import.meta.env.VITE_ENABLE_GEOCODING === 'true'
+const enableGeocoding = import.meta.env.VITE_ENABLE_GEOCODING !== 'false'
 const geocoderProvider = import.meta.env.VITE_GEOCODER_PROVIDER ?? 'nominatim'
 const geocoderBaseUrl = import.meta.env.VITE_GEOCODER_BASE_URL ?? 'https://nominatim.openstreetmap.org'
 const geocoderCountryCode = import.meta.env.VITE_GEOCODER_COUNTRY_CODE ?? 'au'
@@ -160,15 +160,19 @@ export const geocodeAddressQuery = async (
   url.searchParams.set('countrycodes', geocoderCountryCode)
   url.searchParams.set('limit', String(limit))
 
-  const response = await fetchFn(url.toString(), {
-    headers: {
-      Accept: 'application/json'
-    }
-  })
+  try {
+    const response = await fetchFn(url.toString(), {
+      headers: {
+        Accept: 'application/json'
+      }
+    })
 
-  if (!response.ok) return []
-  const payload = (await response.json()) as NominatimResult[]
-  return payload.map(mapNominatimToRecord).filter((item): item is StreetAddressRecord => Boolean(item))
+    if (!response.ok) return []
+    const payload = (await response.json()) as NominatimResult[]
+    return payload.map(mapNominatimToRecord).filter((item): item is StreetAddressRecord => Boolean(item))
+  } catch {
+    return []
+  }
 }
 
 export const searchStreetAddresses = async (query: string, limit = 10): Promise<StreetAddressRecord[]> => {

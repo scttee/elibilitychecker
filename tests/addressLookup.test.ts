@@ -47,6 +47,13 @@ describe('address lookup', () => {
     expect(roads.roadCount).toBeGreaterThan(0)
   })
 
+
+  it('falls back safely when geocoder request throws', async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error('network blocked'))
+    const results = await geocodeAddressQuery('George Street', 5, mockFetch as unknown as typeof fetch)
+    expect(results).toEqual([])
+  })
+
   it('maps geocoder results when enabled fetch returns valid suburb', async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
