@@ -1,0 +1,29 @@
+{
+  "sourceNote": "Prototype baseline sourced from public City of Sydney outdoor dining guidance themes (footpath clearance and location-based assessment). Exact hours and area are confirmed by council during assessment.",
+  "zones": {
+    "local": {
+      "label": "Local street",
+      "typicalHours": "7:00am to 10:00pm",
+      "typicalMaxAreaSqm": 12,
+      "clearanceRule": "Keep a clear pedestrian through-route at all times (often 1.8m or more, subject to site checks)."
+    },
+    "high_street": {
+      "label": "High street / village main street",
+      "typicalHours": "7:00am to 11:00pm",
+      "typicalMaxAreaSqm": 18,
+      "clearanceRule": "Keep a wider pedestrian corridor where foot traffic is high; avoid pinch points near crossings and bus stops."
+    },
+    "city_centre": {
+      "label": "City centre",
+      "typicalHours": "7:00am to midnight",
+      "typicalMaxAreaSqm": 24,
+      "clearanceRule": "High pedestrian flows usually require larger clearances and tighter furniture footprints."
+    },
+    "special": {
+      "label": "Special precinct",
+      "typicalHours": "Case-by-case with land manager and council",
+      "typicalMaxAreaSqm": 10,
+      "clearanceRule": "The Rocks, Darling Harbour and Barangaroo may involve additional authority approval pathways."
+    }
+  }
+}
