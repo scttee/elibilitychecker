@@ -35,8 +35,9 @@ export interface StreetAddressRecord {
   inCityLga: boolean
   specialPrecinct: SpecialPrecinct
   footpathZone: FootpathZone
-  sourceType: 'street_register' | 'business_register' | 'geocoder'
+  sourceType: 'street_register' | 'business_register' | 'road_name_register' | 'geocoder'
   businessName?: string
+  confidenceNote?: string
 }
 
 interface ZoneGuidance {
@@ -86,7 +87,9 @@ const roadNamesConfig = cityRoadNamesData as CityRoadNamesData
 
 const zoneBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.footpathZone]))
 const precinctBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.specialPrecinct]))
-const knownSuburbs = new Set(streetRecords.map((record) => record.suburb.toLowerCase()))
+const postcodeBySuburb = new Map(streetRecords.map((record) => [record.suburb.toLowerCase(), record.postcode]))
+const knownSuburbs = [...new Set(streetRecords.map((record) => record.suburb))].sort((a, b) => a.localeCompare(b))
+const knownSuburbSet = new Set(knownSuburbs.map((suburb) => suburb.toLowerCase()))
 
 const enableGeocoding = import.meta.env.VITE_ENABLE_GEOCODING !== 'false'
 const geocoderProvider = import.meta.env.VITE_GEOCODER_PROVIDER ?? 'nominatim'
@@ -112,16 +115,61 @@ const toBusinessRecord = (record: BusinessAddressRecord): StreetAddressRecord =>
 
 const registry = [...streetRecords.map(toStreetRecord), ...businessRecords.map(toBusinessRecord)]
 
+const extractKnownSuburb = (query: string) => {
+  const cleanQuery = query.trim().toLowerCase()
+  if (!cleanQuery) return null
+
+  return knownSuburbs.find((suburb) => cleanQuery.includes(suburb.toLowerCase())) ?? null
+}
+
+const createRoadRegisterRecord = (roadName: string, suburb: string | null): StreetAddressRecord => {
+  const suburbLabel = suburb ?? 'City of Sydney'
+  const suburbKey = suburb?.toLowerCase() ?? ''
+
+  return {
+    id: `road-${roadName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${suburbKey || 'city-of-sydney'}`,
+    streetAddress: roadName,
+    suburb: suburbLabel,
+    postcode: suburb ? postcodeBySuburb.get(suburbKey) ?? '' : '',
+    inCityLga: true,
+    specialPrecinct: suburb ? precinctBySuburb.get(suburbKey) ?? null : null,
+    footpathZone: suburb ? zoneBySuburb.get(suburbKey) ?? 'local' : 'local',
+    sourceType: 'road_name_register',
+    confidenceNote: suburb
+      ? 'Matched from the City-wide road-name register. Suburb was inferred from your query.'
+      : 'Matched from the City-wide road-name register. Add a suburb for better location certainty.'
+  }
+}
+
+const searchRoadNameRegister = (query: string, limit = 10): StreetAddressRecord[] => {
+  const cleanQuery = query.trim().toLowerCase()
+  if (!cleanQuery) return []
+
+  const inferredSuburb = extractKnownSuburb(query)
+
+  return roadNamesConfig.roads
+    .filter((road) => road.toLowerCase().includes(cleanQuery) || cleanQuery.includes(road.toLowerCase()))
+    .slice(0, limit)
+    .map((road) => createRoadRegisterRecord(road, inferredSuburb))
+}
+
 export const searchStreetAddressesLocal = (query: string, limit = 10): StreetAddressRecord[] => {
   const cleanQuery = query.trim().toLowerCase()
   if (!cleanQuery) return []
 
-  return registry
-    .filter((record) => {
-      const haystack = `${record.businessName ?? ''} ${record.streetAddress} ${record.suburb} ${record.postcode}`.toLowerCase()
-      return haystack.includes(cleanQuery)
-    })
-    .slice(0, limit)
+  const localMatches = registry.filter((record) => {
+    const haystack = `${record.businessName ?? ''} ${record.streetAddress} ${record.suburb} ${record.postcode}`.toLowerCase()
+    return haystack.includes(cleanQuery)
+  })
+
+  const supplementalRoadMatches = searchRoadNameRegister(query, limit).filter(
+    (roadRecord) =>
+      !localMatches.some(
+        (record) => record.streetAddress === roadRecord.streetAddress && record.suburb.toLowerCase() === roadRecord.suburb.toLowerCase()
+      )
+  )
+
+  return [...localMatches, ...supplementalRoadMatches].slice(0, limit)
 }
 
 const mapNominatimToRecord = (item: NominatimResult): StreetAddressRecord | null => {
@@ -129,7 +177,7 @@ const mapNominatimToRecord = (item: NominatimResult): StreetAddressRecord | null
   if (!suburb) return null
 
   const suburbKey = suburb.toLowerCase()
-  if (!knownSuburbs.has(suburbKey)) return null
+  if (!knownSuburbSet.has(suburbKey)) return null
 
   return {
     id: `geo-${item.place_id}`,
@@ -214,10 +262,11 @@ export const getCityLgaCoverage = () => {
   return {
     streetRecordCount: streetRecords.length,
     businessRecordCount: businessRecords.length,
+    roadNameCount: roadNamesConfig.roadCount,
     suburbs,
     coverageNote:
-      'Specific address certainty is based on matched records in the local street/business registers, with optional geocoder suggestions when enabled.',
-    lastUpdated: '2026-02-19',
-    confidenceLabel: 'Medium (prototype local register + optional geocoder)'
+      'Specific address certainty is based on matched local street/business records. When an address is not in the prototype sample, the checker can still suggest a City-wide road-name match, with optional geocoder suggestions when enabled.',
+    lastUpdated: '2026-03-19',
+    confidenceLabel: 'Medium (prototype local register + city-wide road names + optional geocoder)'
   }
 }

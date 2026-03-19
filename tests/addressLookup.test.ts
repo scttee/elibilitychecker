@@ -21,6 +21,19 @@ describe('address lookup', () => {
     expect(result.businessName).toContain('Harbour Lane Cafe')
   })
 
+  it('falls back to the city-wide road-name register for streets missing from the local sample', () => {
+    const [result] = searchStreetAddressesLocal('King Street, Newtown')
+    expect(result.sourceType).toBe('road_name_register')
+    expect(result.suburb).toBe('Newtown')
+    expect(result.confidenceNote).toContain('inferred')
+  })
+
+  it('returns a generic city-wide road match when no suburb is supplied', () => {
+    const [result] = searchStreetAddressesLocal('Broadway')
+    expect(result.streetAddress).toBe('Broadway')
+    expect(result.suburb).toBe('Ultimo')
+  })
+
   it('returns entitlement guidance for a selected record', () => {
     const [record] = searchStreetAddressesLocal('George Street')
     const entitlement = estimateEntitlement(record)
@@ -32,8 +45,9 @@ describe('address lookup', () => {
     const coverage = getCityLgaCoverage()
     expect(coverage.streetRecordCount).toBeGreaterThan(20)
     expect(coverage.businessRecordCount).toBeGreaterThan(3)
+    expect(coverage.roadNameCount).toBeGreaterThan(0)
     expect(coverage.lastUpdated).toMatch(/\d{4}-\d{2}-\d{2}/)
-    expect(coverage.confidenceLabel).toContain('prototype')
+    expect(coverage.confidenceLabel).toContain('road names')
   })
 
   it('merges async lookup results without crashing', async () => {
@@ -41,12 +55,10 @@ describe('address lookup', () => {
     expect(results.length).toBeGreaterThan(0)
   })
 
-
   it('reports road-name register metadata', () => {
     const roads = getRoadNameCoverage()
     expect(roads.roadCount).toBeGreaterThan(0)
   })
-
 
   it('falls back safely when geocoder request throws', async () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error('network blocked'))

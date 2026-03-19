@@ -207,8 +207,27 @@ node scripts/importRoadNamesArcgis.mjs \
 What this now does:
 1. Pages through ArcGIS records in batches (`resultOffset`/`resultRecordCount`).
 2. Normalises and deduplicates road names from known attribute fields.
-3. Writes `src/data/cityRoadNames.json` used by the app coverage panel.
+3. Writes `src/data/cityRoadNames.json`, which is now used both for coverage reporting and as a wider street-name fallback in lookup.
 
-Next step after road names import:
-- Join the road-name list to full address points (for example G-NAF or council address points) so lookup can move from road-level to full address-level certainty.
+## Import City of Sydney road names from OpenStreetMap
+
+If you want to seed the wider road-name register from OpenStreetMap instead, use the City of Sydney relation (`1251066`):
+
+```bash
+npm run import:roads:osm
+```
+
+or directly:
+
+```bash
+node scripts/importRoadNamesOsm.mjs 1251066 src/data/cityRoadNames.json
+```
+
+That script:
+1. Queries Overpass for named highway ways inside relation `1251066`.
+2. Deduplicates and normalises street names.
+3. Rewrites `src/data/cityRoadNames.json` so the checker can suggest many more City streets even when they are not in the small prototype address sample.
+
+Important limitation:
+- A road-name register improves street discovery, but it does **not** prove an exact property-level match. For full address certainty, you still need an address-point dataset such as G-NAF or a council-maintained address register joined to the LGA boundary.
 

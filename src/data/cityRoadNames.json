@@ -1,19 +1,29 @@
 {
   "source": "local prototype sample",
-  "generatedAt": "2026-03-09T00:00:00.000Z",
-  "roadCount": 12,
+  "generatedAt": "2026-03-19T00:00:00.000Z",
+  "roadCount": 22,
   "roads": [
+    "Allen Street",
+    "Bayswater Road",
     "Botany Road",
     "Broadway",
     "Cleveland Street",
     "Crown Street",
     "Dixon Street",
+    "Erskineville Road",
     "George Street",
     "Glebe Point Road",
+    "Harbourside Promenade",
     "Harris Street",
     "Hickson Road",
+    "Joynton Avenue",
     "Kent Street",
+    "King Street",
     "Macleay Street",
-    "Oxford Street"
+    "Mentmore Avenue",
+    "Oxford Street",
+    "Parramatta Road",
+    "Redfern Street",
+    "Ross Street"
   ]
 }

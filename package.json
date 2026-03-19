@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "import:roads": "node scripts/importRoadNamesArcgis.mjs"
+    "import:roads": "node scripts/importRoadNamesArcgis.mjs",
+    "import:roads:osm": "node scripts/importRoadNamesOsm.mjs 1251066 src/data/cityRoadNames.json"
   },
   "dependencies": {
     "react": "^18.3.1",

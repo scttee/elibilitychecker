@@ -5,6 +5,13 @@ interface AddressLookupProps {
   onSelect: (record: StreetAddressRecord) => void
 }
 
+const sourceTypeLabel: Record<StreetAddressRecord['sourceType'], string> = {
+  business_register: 'Business register',
+  street_register: 'Street register',
+  road_name_register: 'City road-name register',
+  geocoder: 'Geocoder suggestion'
+}
+
 const AddressLookup = ({ onSelect }: AddressLookupProps) => {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<StreetAddressRecord | null>(null)
@@ -38,8 +45,8 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
     <section className="no-print mb-6 rounded-xl border border-civic-border bg-white p-4 shadow-sm">
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Type your business name or street address. Pick the best match to start.
-        We use City of Sydney local records first, then optional geocoder suggestions if enabled.
+        Type your business name, street, suburb, or full address. We search the prototype street/business register first,
+        then the wider City road-name register, then optional geocoder suggestions if enabled.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">
@@ -65,22 +72,19 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
                 className="w-full rounded-lg border border-civic-border p-3 text-left hover:border-civic-accent"
                 onClick={() => {
                   setSelected(record)
-                  setQuery(`${record.streetAddress}, ${record.suburb}`)
+                  setQuery(`${record.streetAddress}${record.suburb ? `, ${record.suburb}` : ''}`)
                   onSelect(record)
                 }}
               >
                 <p className="text-sm font-semibold text-civic-ink">
                   {record.businessName ? `${record.businessName} — ` : ''}
-                  {record.streetAddress}, {record.suburb}
+                  {record.streetAddress}{record.suburb ? `, ${record.suburb}` : ''}
                 </p>
                 <p className="text-xs text-slate-600">
-                  {record.postcode} ·{' '}
-                  {record.sourceType === 'business_register'
-                    ? 'Business register'
-                    : record.sourceType === 'street_register'
-                      ? 'Street register'
-                      : 'Geocoder suggestion'}
+                  {record.postcode ? `${record.postcode} · ` : ''}
+                  {sourceTypeLabel[record.sourceType]}
                 </p>
+                {record.confidenceNote ? <p className="mt-1 text-xs text-amber-700">{record.confidenceNote}</p> : null}
               </button>
             </li>
           ))}
@@ -89,7 +93,7 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
 
       {selected ? (
         <div className="mt-3 rounded-lg border border-civic-accent/30 bg-civic-soft p-3 text-xs text-slate-700">
-          Selected: {selected.streetAddress}, {selected.suburb}
+          Selected: {selected.streetAddress}{selected.suburb ? `, ${selected.suburb}` : ''}
         </div>
       ) : null}
     </section>

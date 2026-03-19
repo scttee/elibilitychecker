@@ -145,7 +145,7 @@ const Home = () => {
         <h2 className="font-semibold text-civic-ink">Address data used in this prototype</h2>
         <p className="mt-1">
           Loaded {coverage.streetRecordCount} street records and {coverage.businessRecordCount} business records across{' '}
-          {coverage.suburbs.length} City of Sydney suburbs. Road-name register loaded: {roadCoverage.roadCount}.
+          {coverage.suburbs.length} City of Sydney suburbs. City-wide road-name register loaded: {coverage.roadNameCount} streets.
         </p>
         <p className="mt-1 text-xs text-slate-600">{coverage.coverageNote}</p>
         <p className="mt-1 text-xs text-slate-600">
