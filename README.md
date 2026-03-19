@@ -186,6 +186,7 @@ How it works:
 
 Notes:
 - The live geocoder path uses OpenStreetMap's Nominatim search API, bounded to the City of Sydney viewbox, in addition to the local prototype datasets.
+- If a street such as Bourke Street does not appear locally, the usual reason is that `src/data/cityRoadNames.json` has not yet been refreshed from the full City dataset; the checked-in file is still only a prototype subset.
 - If geocoder requests fail, the app falls back to local register and road-name register results.
 - Nominatim usage limits apply; for production use a hosted geocoder/proxy and send identifying request metadata where required.
 

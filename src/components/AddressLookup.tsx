@@ -17,6 +17,7 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
   const [selected, setSelected] = useState<StreetAddressRecord | null>(null)
   const [results, setResults] = useState<StreetAddressRecord[]>([])
   const [loading, setLoading] = useState(false)
+  const showNoResults = query.trim().length > 2 && !loading && results.length === 0
 
   useEffect(() => {
     let cancelled = false
@@ -62,6 +63,20 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
       />
 
       {loading ? <p className="mt-2 text-xs text-slate-500">Finding matches...</p> : null}
+
+
+      {showNoResults ? (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-slate-700">
+          <p className="font-medium text-slate-800">No match found yet.</p>
+          <p className="mt-1">
+            Why this can happen: the bundled road list is still a prototype sample, and live OpenStreetMap geocoder requests can fail if
+            the network or browser blocks Nominatim.
+          </p>
+          <p className="mt-1">
+            Try adding the suburb or postcode, or refresh `src/data/cityRoadNames.json` with `npm run import:roads:osm`.
+          </p>
+        </div>
+      ) : null}
 
       {results.length > 0 ? (
         <ul className="mt-3 space-y-2" role="listbox" aria-label="Street lookup results">

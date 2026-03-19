@@ -21,6 +21,12 @@ describe('address lookup', () => {
     expect(result.businessName).toContain('Harbour Lane Cafe')
   })
 
+  it('finds Bourke Street from the bundled road-name register even when the live geocoder is unavailable', () => {
+    const [result] = searchStreetAddressesLocal('Bourke Street')
+    expect(result.sourceType).toBe('road_name_register')
+    expect(result.streetAddress).toBe('Bourke Street')
+  })
+
   it('falls back to the city-wide road-name register for streets missing from the local sample', () => {
     const [result] = searchStreetAddressesLocal('King Street, Newtown')
     expect(result.sourceType).toBe('road_name_register')
