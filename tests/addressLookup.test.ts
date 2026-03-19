@@ -47,7 +47,7 @@ describe('address lookup', () => {
     expect(coverage.businessRecordCount).toBeGreaterThan(3)
     expect(coverage.roadNameCount).toBeGreaterThan(0)
     expect(coverage.lastUpdated).toMatch(/\d{4}-\d{2}-\d{2}/)
-    expect(coverage.confidenceLabel).toContain('road names')
+    expect(coverage.confidenceLabel).toContain('live OSM geocoder')
   })
 
   it('merges async lookup results without crashing', async () => {
@@ -84,5 +84,30 @@ describe('address lookup', () => {
 
     const results = await geocodeAddressQuery('George Street', 5, mockFetch as unknown as typeof fetch)
     expect(Array.isArray(results)).toBe(true)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('accepts city of sydney municipality matches from nominatim even when suburb is not in the sample set', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [
+        {
+          place_id: 2,
+          display_name: '1 Broadway, Sydney NSW 2007, Australia',
+          address: {
+            road: 'Broadway',
+            municipality: 'Council of the City of Sydney',
+            city: 'Sydney',
+            postcode: '2007'
+          }
+        }
+      ]
+    })
+
+    const [result] = await geocodeAddressQuery('1 Broadway, Sydney NSW 2007', 5, mockFetch as unknown as typeof fetch)
+    expect(result.sourceType).toBe('geocoder')
+    expect(result.suburb).toBe('Sydney')
+    expect(result.confidenceNote).toContain('OpenStreetMap')
+    expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 })

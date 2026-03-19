@@ -59,18 +59,31 @@ interface CityRoadNamesData {
   roads: string[]
 }
 
+interface NominatimAddress {
+  road?: string
+  suburb?: string
+  neighbourhood?: string
+  quarter?: string
+  city_district?: string
+  city?: string
+  municipality?: string
+  county?: string
+  state?: string
+  postcode?: string
+}
+
 interface NominatimResult {
   place_id: number
   lat: string
   lon: string
   display_name: string
-  address?: {
-    road?: string
-    suburb?: string
-    city_district?: string
-    city?: string
-    postcode?: string
-  }
+  address?: NominatimAddress
+}
+
+interface ParsedAddressQuery {
+  street?: string
+  city?: string
+  postalcode?: string
 }
 
 export interface EntitlementEstimate {
@@ -95,6 +108,9 @@ const enableGeocoding = import.meta.env.VITE_ENABLE_GEOCODING !== 'false'
 const geocoderProvider = import.meta.env.VITE_GEOCODER_PROVIDER ?? 'nominatim'
 const geocoderBaseUrl = import.meta.env.VITE_GEOCODER_BASE_URL ?? 'https://nominatim.openstreetmap.org'
 const geocoderCountryCode = import.meta.env.VITE_GEOCODER_COUNTRY_CODE ?? 'au'
+const geocoderViewbox = import.meta.env.VITE_GEOCODER_VIEWBOX ?? '151.151,-33.856,151.254,-33.939'
+const geocoderBounded = import.meta.env.VITE_GEOCODER_BOUNDED ?? '1'
+const geocoderEmail = import.meta.env.VITE_GEOCODER_EMAIL ?? ''
 
 const toStreetRecord = (record: CityLocationRecord): StreetAddressRecord => ({
   ...record,
@@ -120,6 +136,28 @@ const extractKnownSuburb = (query: string) => {
   if (!cleanQuery) return null
 
   return knownSuburbs.find((suburb) => cleanQuery.includes(suburb.toLowerCase())) ?? null
+}
+
+const parseAddressQuery = (query: string): ParsedAddressQuery => {
+  const clean = query.trim().replace(/\s+/g, ' ')
+  if (!clean) return {}
+
+  const inferredSuburb = extractKnownSuburb(clean)
+  const postcodeMatch = clean.match(/\b(2\d{3})\b/)
+
+  let street = clean
+  if (inferredSuburb) {
+    street = street.replace(new RegExp(`,?\\s*${inferredSuburb}`, 'i'), '').trim()
+  }
+  if (postcodeMatch) {
+    street = street.replace(postcodeMatch[1], '').trim().replace(/,$/, '').trim()
+  }
+
+  return {
+    street: street || undefined,
+    city: inferredSuburb ?? undefined,
+    postalcode: postcodeMatch?.[1]
+  }
 }
 
 const createRoadRegisterRecord = (roadName: string, suburb: string | null): StreetAddressRecord => {
@@ -172,23 +210,80 @@ export const searchStreetAddressesLocal = (query: string, limit = 10): StreetAdd
   return [...localMatches, ...supplementalRoadMatches].slice(0, limit)
 }
 
+const isLikelyCityOfSydneyResult = (address?: NominatimAddress) => {
+  if (!address) return false
+
+  const suburbCandidates = [address.suburb, address.neighbourhood, address.quarter, address.city_district, address.city]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.toLowerCase())
+
+  if (suburbCandidates.some((value) => knownSuburbSet.has(value))) return true
+
+  const municipality = `${address.municipality ?? ''} ${address.county ?? ''} ${address.city ?? ''}`.toLowerCase()
+  return municipality.includes('city of sydney') || municipality.includes('council of the city of sydney')
+}
+
 const mapNominatimToRecord = (item: NominatimResult): StreetAddressRecord | null => {
-  const suburb = item.address?.suburb ?? item.address?.city_district ?? item.address?.city
-  if (!suburb) return null
+  const address = item.address
+  if (!isLikelyCityOfSydneyResult(address)) return null
+
+  const suburb =
+    address?.suburb ??
+    address?.neighbourhood ??
+    address?.quarter ??
+    address?.city_district ??
+    address?.city ??
+    'City of Sydney'
 
   const suburbKey = suburb.toLowerCase()
-  if (!knownSuburbSet.has(suburbKey)) return null
+  const mappedSuburb = knownSuburbSet.has(suburbKey) ? suburb : extractKnownSuburb(item.display_name) ?? 'City of Sydney'
+  const mappedSuburbKey = mappedSuburb.toLowerCase()
 
   return {
     id: `geo-${item.place_id}`,
-    streetAddress: item.address?.road ?? item.display_name,
-    suburb,
-    postcode: item.address?.postcode ?? '',
+    streetAddress: address?.road ?? item.display_name,
+    suburb: mappedSuburb,
+    postcode: address?.postcode ?? postcodeBySuburb.get(mappedSuburbKey) ?? '',
     inCityLga: true,
-    specialPrecinct: precinctBySuburb.get(suburbKey) ?? null,
-    footpathZone: zoneBySuburb.get(suburbKey) ?? 'local',
-    sourceType: 'geocoder'
+    specialPrecinct: precinctBySuburb.get(mappedSuburbKey) ?? null,
+    footpathZone: zoneBySuburb.get(mappedSuburbKey) ?? 'local',
+    sourceType: 'geocoder',
+    confidenceNote:
+      mappedSuburb === 'City of Sydney'
+        ? 'Live OpenStreetMap geocoder match. Add the suburb to improve zone confidence.'
+        : 'Live OpenStreetMap geocoder match.'
   }
+}
+
+const buildNominatimSearchUrls = (query: string, limit: number) => {
+  const freeformUrl = new URL('/search', geocoderBaseUrl)
+  freeformUrl.searchParams.set('q', query.trim())
+  freeformUrl.searchParams.set('format', 'jsonv2')
+  freeformUrl.searchParams.set('addressdetails', '1')
+  freeformUrl.searchParams.set('countrycodes', geocoderCountryCode)
+  freeformUrl.searchParams.set('limit', String(limit))
+  freeformUrl.searchParams.set('viewbox', geocoderViewbox)
+  freeformUrl.searchParams.set('bounded', geocoderBounded)
+  if (geocoderEmail) freeformUrl.searchParams.set('email', geocoderEmail)
+
+  const parsed = parseAddressQuery(query)
+  const structuredUrl = new URL('/search', geocoderBaseUrl)
+  structuredUrl.searchParams.set('format', 'jsonv2')
+  structuredUrl.searchParams.set('addressdetails', '1')
+  structuredUrl.searchParams.set('countrycodes', geocoderCountryCode)
+  structuredUrl.searchParams.set('limit', String(limit))
+  structuredUrl.searchParams.set('viewbox', geocoderViewbox)
+  structuredUrl.searchParams.set('bounded', geocoderBounded)
+  if (geocoderEmail) structuredUrl.searchParams.set('email', geocoderEmail)
+  if (parsed.street) structuredUrl.searchParams.set('street', parsed.street)
+  if (parsed.city) structuredUrl.searchParams.set('city', parsed.city)
+  if (parsed.postalcode) structuredUrl.searchParams.set('postalcode', parsed.postalcode)
+
+  const urls = [freeformUrl]
+  if (parsed.street || parsed.city || parsed.postalcode) {
+    urls.push(structuredUrl)
+  }
+  return urls
 }
 
 export const geocodeAddressQuery = async (
@@ -201,23 +296,35 @@ export const geocodeAddressQuery = async (
   const clean = query.trim()
   if (!clean) return []
 
-  const url = new URL('/search', geocoderBaseUrl)
-  url.searchParams.set('q', clean)
-  url.searchParams.set('format', 'jsonv2')
-  url.searchParams.set('addressdetails', '1')
-  url.searchParams.set('countrycodes', geocoderCountryCode)
-  url.searchParams.set('limit', String(limit))
+  const urls = buildNominatimSearchUrls(clean, limit)
 
   try {
-    const response = await fetchFn(url.toString(), {
-      headers: {
-        Accept: 'application/json'
-      }
-    })
+    const responses = await Promise.all(
+      urls.map((url) =>
+        fetchFn(url.toString(), {
+          headers: {
+            Accept: 'application/json'
+          }
+        })
+      )
+    )
 
-    if (!response.ok) return []
-    const payload = (await response.json()) as NominatimResult[]
-    return payload.map(mapNominatimToRecord).filter((item): item is StreetAddressRecord => Boolean(item))
+    const payloads = await Promise.all(
+      responses.map(async (response) => {
+        if (!response.ok) return [] as NominatimResult[]
+        return (await response.json()) as NominatimResult[]
+      })
+    )
+
+    const merged = new Map<string, StreetAddressRecord>()
+    for (const payload of payloads) {
+      for (const item of payload.map(mapNominatimToRecord).filter((result): result is StreetAddressRecord => Boolean(result))) {
+        const key = `${item.streetAddress}::${item.suburb}`
+        if (!merged.has(key)) merged.set(key, item)
+      }
+    }
+
+    return [...merged.values()].slice(0, limit)
   } catch {
     return []
   }
@@ -265,8 +372,8 @@ export const getCityLgaCoverage = () => {
     roadNameCount: roadNamesConfig.roadCount,
     suburbs,
     coverageNote:
-      'Specific address certainty is based on matched local street/business records. When an address is not in the prototype sample, the checker can still suggest a City-wide road-name match, with optional geocoder suggestions when enabled.',
+      'Specific address certainty is based on matched local street/business records. When an address is not in the prototype sample, the checker now falls back to the City-wide road-name register and a live OpenStreetMap geocoder search bounded to the City of Sydney area.',
     lastUpdated: '2026-03-19',
-    confidenceLabel: 'Medium (prototype local register + city-wide road names + optional geocoder)'
+    confidenceLabel: 'Medium (prototype local register + city-wide road names + live OSM geocoder)'
   }
 }

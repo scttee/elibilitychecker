@@ -46,7 +46,7 @@ const AddressLookup = ({ onSelect }: AddressLookupProps) => {
       <h2 className="text-base font-semibold text-civic-ink">Street address lookup</h2>
       <p className="mt-1 text-sm text-slate-600">
         Type your business name, street, suburb, or full address. We search the prototype street/business register first,
-        then the wider City road-name register, then optional geocoder suggestions if enabled.
+        then the wider City road-name register, then a live OpenStreetMap geocoder search within the City of Sydney area.
       </p>
 
       <label className="mt-3 block text-sm font-medium text-civic-ink" htmlFor="address-lookup">

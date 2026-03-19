@@ -185,8 +185,9 @@ How it works:
 3. Suggestions are filtered to known City of Sydney suburbs before display.
 
 Notes:
-- If geocoder requests fail, the app falls back to local register results.
-- Nominatim usage limits apply; for production use a hosted geocoder/proxy.
+- The live geocoder path uses OpenStreetMap's Nominatim search API, bounded to the City of Sydney viewbox, in addition to the local prototype datasets.
+- If geocoder requests fail, the app falls back to local register and road-name register results.
+- Nominatim usage limits apply; for production use a hosted geocoder/proxy and send identifying request metadata where required.
 
 ## Import full City of Sydney road-name register (ArcGIS)
 
