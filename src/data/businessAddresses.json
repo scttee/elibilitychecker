@@ -1,0 +1,52 @@
+[
+  {
+    "id": "biz-001",
+    "businessName": "Harbour Lane Cafe",
+    "streetAddress": "45 George Street, The Rocks NSW 2000",
+    "suburb": "The Rocks",
+    "postcode": "2000",
+    "inCityLga": true,
+    "specialPrecinct": "The Rocks",
+    "locationTypeHint": "footpath"
+  },
+  {
+    "id": "biz-002",
+    "businessName": "Darling Quay Bistro",
+    "streetAddress": "12 Wheat Road, Darling Harbour NSW 2000",
+    "suburb": "Darling Harbour",
+    "postcode": "2000",
+    "inCityLga": true,
+    "specialPrecinct": "Darling Harbour",
+    "locationTypeHint": "both"
+  },
+  {
+    "id": "biz-003",
+    "businessName": "Barangaroo Kitchen",
+    "streetAddress": "8 Hickson Road, Barangaroo NSW 2000",
+    "suburb": "Barangaroo",
+    "postcode": "2000",
+    "inCityLga": true,
+    "specialPrecinct": "Barangaroo",
+    "locationTypeHint": "footpath"
+  },
+  {
+    "id": "biz-004",
+    "businessName": "Crown Street Deli",
+    "streetAddress": "180 Crown Street, Surry Hills NSW 2010",
+    "suburb": "Surry Hills",
+    "postcode": "2010",
+    "inCityLga": true,
+    "specialPrecinct": null,
+    "locationTypeHint": "footpath"
+  },
+  {
+    "id": "biz-005",
+    "businessName": "Boundary Hotel Eatery",
+    "streetAddress": "1 Parramatta Road, Camperdown NSW 2050",
+    "suburb": "Camperdown",
+    "postcode": "2050",
+    "inCityLga": false,
+    "specialPrecinct": null,
+    "locationTypeHint": "not_sure"
+  }
+]
